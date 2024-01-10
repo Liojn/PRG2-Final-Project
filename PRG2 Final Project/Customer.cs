@@ -35,7 +35,7 @@ namespace PRG2_Final_Project
 
         public Order MakeOrder()
         {
-            CurrentOrder = new Order(MemberId, dob);
+            CurrentOrder = new Order(MemberId, DateTime.Now);
             return CurrentOrder;
         }
 
@@ -53,11 +53,12 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
+            string orders = "";
             foreach (Order o in orderHistory)
             {
-
+                orders += o.ToString + "\n";
             }
-            return ("Name: " + Name + "\tMember ID: " + MemberId + "\tDate of Birth: " + dob.ToString("MM/dd/yyyy") + "\nRewards: " + Rewards + "\nCurrent Order: " + CurrentOrder + );
+            return ("Name: " + Name + "\tMember ID: " + MemberId + "\tDate of Birth: " + dob.ToString("MM/dd/yyyy") + "\nRewards: " + Rewards + "\nCurrent Order: " + CurrentOrder + "\nOrder History: " + orders );
 
 
         }
