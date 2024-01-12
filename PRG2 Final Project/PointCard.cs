@@ -71,7 +71,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier) 
+            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier); 
         }
 
 

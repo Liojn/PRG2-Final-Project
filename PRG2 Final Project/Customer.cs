@@ -24,13 +24,14 @@ namespace PRG2_Final_Project
 
         public Customer() { }
 
-        public Customer(string n, int m, DateTime d, PointCard r, Order c)
+        public Customer(string n, int m, DateTime d)
         {
+            CurrentOrder = null;
+            Rewards = new PointCard(0,0);
             Name = n;
             MemberId = m;
             Dob = d;
-            Rewards = r;
-            CurrentOrder = c;
+
         }
 
         public Order MakeOrder()

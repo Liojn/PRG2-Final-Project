@@ -43,39 +43,81 @@ namespace PRG2_Final_Project
             }
             if (modIceCream is Cone)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Cone Dip");
+                Console.WriteLine("[{}]: {}", PossibleChoices.Count() + 1, "Cone Dip");
             }
             else if (modIceCream is Waffle)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Waffle Flavor");
+                Console.WriteLine("[{}]: {}", PossibleChoices.Count() + 1, "Waffle Flavor");
             }
+
             Console.Write("What do you want to modify?: ");
             int option = Convert.ToInt32(Console.ReadLine());
 
-            if (option == 1)
-            { 
-                Console.WriteLine("==========");
-                if (modIceCream is Cone)
-                {
-                    Console.WriteLine("Current Option: {}", "Cup");
-                    Console.WriteLine("[1]Change to {}: ", "Cone");
-                    Console.WriteLine("[2]Change to {}: ", "Waffle");
-                    Console.WriteLine("[0]Exit.");
-                    int chosen = Convert.ToInt32(Console.ReadLine());
-                    if (chosen == 0)
+            switch(option)
+            {
+                case 1:
+                    if (modIceCream is Cup)
                     {
-                        return;
+                        Console.WriteLine("Current Option: {}","Cup");
+                        Console.WriteLine("[1]Switch to {}.", "Cone");
+                        Console.WriteLine("[2]Switch to {}", "Wafle");
+                        Console.WriteLine("[0]Exit.");
+                        int swap = Convert.ToInt32(Console.ReadLine());
+                        switch (swap)
+                        {
+                            case 0:
+                                return;
+                            case 1:
+                                modIceCream = (Cone)modIceCream;
+                                break;
+                            case 2:
+                                modIceCream = (Waffle)modIceCream;
+                                break;
+                        }
                     }
-                    else if (chosen == 1)
+                    else if (modIceCream is Cone)
                     {
-                        modIceCream = (Cone)modIceCream;
+                        Console.WriteLine("Current Option: {}", "Come");
+                        Console.WriteLine("[1]Switch to {}.", "Cup");
+                        Console.WriteLine("[2]Switch to {}", "Wafle");
+                        int swap = Convert.ToInt32(Console.ReadLine());
+                        switch (swap)
+                        {
+                            case 0:
+                                return;
+                            case 1:
+                                modIceCream = (Cup)modIceCream;
+                                break;
+                            case 2:
+                                modIceCream = (Waffle)modIceCream;
+                                break;
+                        }
                     }
-                    else if (chosen == 2)
+                    else if (modIceCream is Waffle)
                     {
-                        modIceCream = (Waffle)modIceCream;
+                        Console.WriteLine("Current Option: {}", "Waffle");
+                        Console.WriteLine("[1]Switch to {}.", "Cup");
+                        Console.WriteLine("[2]Switch to {}", "Cone");
+                        int swap = Convert.ToInt32(Console.ReadLine());
+                        switch (swap)
+                        {
+                            case 0:
+                                return;
+                            case 1:
+                                modIceCream = (Cup)modIceCream;
+                                break;
+                            case 2:
+                                modIceCream = (Cone)modIceCream;
+                                break;
+                        }
                     }
-                }
-            }  
+                    iceCreamList[i - 1] = modIceCream;
+                    break;
+
+
+                case 2:
+                    break;
+            }
         }
 
         public void AddIceCream(IceCream iceCream)
