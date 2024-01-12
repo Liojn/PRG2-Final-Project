@@ -31,43 +31,51 @@ namespace PRG2_Final_Project
         public void ModifyIceCream(int i)
         {
             string[] PossibleChoices = { "Option", "Scoops", "Flavors","Toppings" };
-            try
+            IceCream modIceCream = iceCreamList[i - 1];
+            if (iceCreamList.Count <= 0)
             {
-                IceCream modIceCream = iceCreamList[i - 1];
-                if (iceCreamList.Count <= 0)
-                {
-                    Console.WriteLine("No Ice Cream in the order.");
-                    return;
-                }
-                for (i = 0; i < PossibleChoices.Count(); i++)
-                {
-                    Console.Write("[{}]: {}", i + 1, PossibleChoices[i]);
-                }
+                Console.WriteLine("No Ice Cream in the order.");
+                return;
+            }
+            for (i = 0; i < PossibleChoices.Count(); i++)
+            {
+                Console.Write("[{}]: {}", i + 1, PossibleChoices[i]);
+            }
+            if (modIceCream is Cone)
+            {
+                Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Cone Dip");
+            }
+            else if (modIceCream is Waffle)
+            {
+                Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Waffle Flavor");
+            }
+            Console.Write("What do you want to modify?: ");
+            int option = Convert.ToInt32(Console.ReadLine());
+
+            if (option == 1)
+            { 
+                Console.WriteLine("==========");
                 if (modIceCream is Cone)
                 {
-                    Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Cone Dip");
+                    Console.WriteLine("Current Option: {}", "Cup");
+                    Console.WriteLine("[1]Change to {}: ", "Cone");
+                    Console.WriteLine("[2]Change to {}: ", "Waffle");
+                    Console.WriteLine("[0]Exit.");
+                    int chosen = Convert.ToInt32(Console.ReadLine());
+                    if (chosen == 0)
+                    {
+                        return;
+                    }
+                    else if (chosen == 1)
+                    {
+                        modIceCream = (Cone)modIceCream;
+                    }
+                    else if (chosen == 2)
+                    {
+                        modIceCream = (Waffle)modIceCream;
+                    }
                 }
-                else if (modIceCream is Waffle)
-                {
-                    Console.WriteLine("[{}]: {}", PossibleChoices.Count(), "Waffle Flavor");
-                }
-            }
-            catch (IndexOutOfRangeException)
-            {
-                Console.WriteLine("Ice Cream dosen't exist");
-            }
-            finally
-            {
-                Console.Write("What do you want to modify?: ");
-                int option = Convert.ToInt32(Console.ReadLine());
-
-                if (option == 1)
-                {
-
-                }
-
-            }
-
+            }  
         }
 
         public void AddIceCream(IceCream iceCream)

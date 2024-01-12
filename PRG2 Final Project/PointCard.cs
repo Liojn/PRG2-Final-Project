@@ -18,7 +18,7 @@ namespace PRG2_Final_Project
 
         public PointCard() { }
 
-        public PointCard(int p, int pc)
+        public PointCard(int p,int pc)
         {
             Points = p;
             PunchCards = pc;
