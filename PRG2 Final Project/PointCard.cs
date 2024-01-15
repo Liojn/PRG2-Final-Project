@@ -22,7 +22,6 @@ namespace PRG2_Final_Project
         {
             Points = p;
             PunchCards = pc;
-            Tier = "Ordinary";
         }
 
         public void AddPoints(int points)

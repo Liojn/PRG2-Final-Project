@@ -28,6 +28,49 @@ namespace PRG2_Final_Project
             TimeFulfilled = null;
         }
 
+        private IceCream ModifyOption(IceCream modIceCream)
+        {
+            Console.WriteLine("Current Option: {}",modIceCream.GetType());
+            Console.WriteLine("[1]Switch to Cup.");
+            Console.WriteLine("[2]Switch to Cone.");
+            Console.WriteLine("[3]Switch to Waffle.");
+            Console.WriteLine("[0]Exit.");
+
+            int swap = Convert.ToInt32(Console.ReadLine());
+
+            switch (swap)
+            {
+                case 0:
+                    break;
+                case 1 when modIceCream is not Cup:
+                    modIceCream = new Cup();
+                    break;
+                case 2 when modIceCream is not Cone:
+                    modIceCream = new Cone();
+                    break;
+                case 3 when modIceCream is not Waffle:
+                    modIceCream = new Waffle();
+                    break;
+            }
+
+            return modIceCream;
+        
+        }
+
+        private IceCream ModifyScoops(IceCream modIceCream)
+        {
+            Console.WriteLine("Current Scoop: {}", modIceCream.Scoops);
+            Console.WriteLine("Choose number of Scoops (1 , 2 , or 3) :");
+            int NewScoops = Convert.ToInt32(Console.ReadLine());
+            modIceCream.Scoops = NewScoops;
+            return modIceCream;
+        }
+
+        private IceCream ModifyFlavour(IceCream modIceCream)
+        {
+
+        }
+
         public void ModifyIceCream(int i)
         {
             string[] PossibleChoices = { "Option", "Scoops", "Flavors","Toppings" };
@@ -37,9 +80,10 @@ namespace PRG2_Final_Project
                 Console.WriteLine("No Ice Cream in the order.");
                 return;
             }
-            for (i = 0; i < PossibleChoices.Count(); i++)
+
+            for (int x = 0; x < PossibleChoices.Count(); x++)
             {
-                Console.Write("[{}]: {}", i + 1, PossibleChoices[i]);
+                Console.Write("[{}]: {}", x + 1, PossibleChoices[i]);
             }
             if (modIceCream is Cone)
             {
@@ -52,73 +96,21 @@ namespace PRG2_Final_Project
 
             Console.Write("What do you want to modify?: ");
             int option = Convert.ToInt32(Console.ReadLine());
-
-            switch(option)
+            switch (option)
             {
                 case 1:
-                    if (modIceCream is Cup)
-                    {
-                        Console.WriteLine("Current Option: {}","Cup");
-                        Console.WriteLine("[1]Switch to {}.", "Cone");
-                        Console.WriteLine("[2]Switch to {}", "Wafle");
-                        Console.WriteLine("[0]Exit.");
-                        int swap = Convert.ToInt32(Console.ReadLine());
-                        switch (swap)
-                        {
-                            case 0:
-                                return;
-                            case 1:
-                                modIceCream = (Cone)modIceCream;
-                                break;
-                            case 2:
-                                modIceCream = (Waffle)modIceCream;
-                                break;
-                        }
-                    }
-                    else if (modIceCream is Cone)
-                    {
-                        Console.WriteLine("Current Option: {}", "Come");
-                        Console.WriteLine("[1]Switch to {}.", "Cup");
-                        Console.WriteLine("[2]Switch to {}", "Wafle");
-                        int swap = Convert.ToInt32(Console.ReadLine());
-                        switch (swap)
-                        {
-                            case 0:
-                                return;
-                            case 1:
-                                modIceCream = (Cup)modIceCream;
-                                break;
-                            case 2:
-                                modIceCream = (Waffle)modIceCream;
-                                break;
-                        }
-                    }
-                    else if (modIceCream is Waffle)
-                    {
-                        Console.WriteLine("Current Option: {}", "Waffle");
-                        Console.WriteLine("[1]Switch to {}.", "Cup");
-                        Console.WriteLine("[2]Switch to {}", "Cone");
-                        int swap = Convert.ToInt32(Console.ReadLine());
-                        switch (swap)
-                        {
-                            case 0:
-                                return;
-                            case 1:
-                                modIceCream = (Cup)modIceCream;
-                                break;
-                            case 2:
-                                modIceCream = (Cone)modIceCream;
-                                break;
-                        }
-                    }
-                    iceCreamList[i - 1] = modIceCream;
+                    modIceCream = ModifyOption(modIceCream);
                     break;
-
-
                 case 2:
+                    modIceCream = ModifyScoops(modIceCream);
                     break;
+                case 3:
+                    break;
+
             }
+
         }
+    
 
         public void AddIceCream(IceCream iceCream)
         {

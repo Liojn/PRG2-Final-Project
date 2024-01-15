@@ -36,13 +36,13 @@ namespace PRG2_Final_Project
 
         public Order MakeOrder()
         {
-            CurrentOrder = new Order(MemberId, DateTime.Now);
+            CurrentOrder = new Order(orderHistory.Count + 1, DateTime.Now);
             return CurrentOrder;
         }
 
-        public bool IsBirthday(DateTime date)
+        public bool IsBirthday()
         {
-            if (date == dob)
+            if (DateTime.Now == dob)
             {
                 return true;
             }
