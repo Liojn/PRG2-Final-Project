@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ namespace PRG2_Final_Project
             Console.WriteLine("[2]Switch to Cone.");
             Console.WriteLine("[3]Switch to Waffle.");
             Console.WriteLine("[0]Exit.");
-
+            Console.Write("Enter your option: ");
             int swap = Convert.ToInt32(Console.ReadLine());
 
             switch (swap)
@@ -68,7 +69,7 @@ namespace PRG2_Final_Project
                 Console.WriteLine("[1]Remove Scoop");
                 Console.WriteLine("[2]Add Scoop");
                 Console.WriteLine("[0]Exit.");
-                Console.WriteLine("Enter your option: ");
+                Console.Write("Enter your option: ");
                 int Scoops = Convert.ToInt32(Console.ReadLine());
                 Console.WriteLine();
                 switch (Scoops)
@@ -86,7 +87,7 @@ namespace PRG2_Final_Project
                         {
                             Console.WriteLine("-{}", f);
                         }
-                        Console.WriteLine("Enter the flavour: ");
+                        Console.Write("Enter the flavour: ");
                         string RemoveF = Console.ReadLine();
                         for (int j = 0; j < modIceCream.Flavours.Count(); j++)
                         {
@@ -123,7 +124,7 @@ namespace PRG2_Final_Project
                         {
                             Console.WriteLine("-{}", (x));
                         }
-                        Console.WriteLine("What flavour do you want the new scoop to be?: ");
+                        Console.Write("What flavour do you want the new scoop to be?: ");
                         string Chosen = Console.ReadLine();
                         Chosen.ToLower();
                         foreach (string x in PremiumFlavours)
@@ -161,7 +162,7 @@ namespace PRG2_Final_Project
             string[] PremiumFlavours = { "Durian", "Ube", "Sea salt" };
             Console.WriteLine("[0]Exit.");
             Console.WriteLine("[1]Change flavour.");
-            Console.WriteLine("Enter your option: ");
+            Console.Write("Enter your option: ");
             int option = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine();
             switch (option)
@@ -179,7 +180,7 @@ namespace PRG2_Final_Project
                     {
                         Console.WriteLine("-{}", (x));
                     }
-                    Console.WriteLine("What flavour do you want?: ");
+                    Console.Write("What flavour do you want?: ");
                     string Chosen = Console.ReadLine();
                     Console.WriteLine();
                     Console.WriteLine("Flavours you currently have: ");
@@ -187,7 +188,7 @@ namespace PRG2_Final_Project
                     {
                         Console.WriteLine("-{}", flavour);
                     }
-                    Console.WriteLine("Which flavour to change?: ");
+                    Console.Write("Which flavour to change?: ");
                     string Change = Console.ReadLine().ToLower();
                     foreach (string x in PremiumFlavours)
                     {
@@ -197,27 +198,107 @@ namespace PRG2_Final_Project
                             break;
                         }
                     }
-
-                    for (int j = 0; j < modIceCream.Flavours.Count(); j++)
+                    Flavour newFlavour = new Flavour(Chosen, premium, 1);
+                    foreach( Flavour f in modIceCream.Flavours)
                     {
-                        if (modIceCream.Flavours[j].Type.ToLower() == Change.ToLower())
+                        if (f.Type.ToLower() == Change.ToLower() && f.Quantity > 1)
                         {
-                            int quanity = modIceCream.Flavours[j].Quantity;
-                            modIceCream.Flavours[j] = new Flavour(Chosen, premium, quanity);
-                            return modIceCream;
+                            f.Quantity -= 1;
+                            foreach (Flavour flav in modIceCream.Flavours)
+                            {
+                                if (flav.Type.ToLower() == Chosen.ToLower())
+                                {
+                                    flav.Quantity += 1;
+                                }
+                            }
+                            modIceCream.Flavours.Add(newFlavour);
+                        }
+                        else if(f.Type.ToLower() == Change.ToLower() && f.Quantity <= 1)
+                        {
+                            modIceCream.Flavours.Remove(f);
+                            foreach (Flavour flav in modIceCream.Flavours)
+                            {
+                                if (flav.Type.ToLower() == Chosen)
+                                {
+                                    flav.Quantity += 1;
+                                    return modIceCream;
+                                }
+                            }
+                            modIceCream.Flavours.Add(newFlavour);
                         }
                     }
+
                     break;
             }
             return modIceCream;
 
         }
 
-        private void ModifyToppings(IceCream moodIceCream)
+        private IceCream ModifyToppings(IceCream modIceCream)
         {
             string[] toppings = { "Sprinkles", "Mochi", "Sago", "Oreos" };
             Console.WriteLine("Your Toppings: ");
-            
+            Console.WriteLine("[0] Exit");
+            Console.WriteLine("[1] Add Toppings");
+            Console.WriteLine("[2] Remove Toppings");
+            Console.Write("Enter your option: ");
+            int option = Convert.ToInt32(Console.ReadLine());
+            switch (option) 
+            {
+                case 0:
+                    return modIceCream;
+                case 1:
+                    if (modIceCream.Toppings.Count == 4)
+                    {
+                        Console.WriteLine("Max Toppings!!");
+                        return modIceCream;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Toppings Available: ");
+                        foreach (string topping in toppings)
+                        {
+                            foreach (Topping t in modIceCream.Toppings)
+                            {
+                                if (t.Type != topping)
+                                {
+                                    Console.WriteLine("-{}", topping);
+                                }
+                            }
+                        }
+                        Console.WriteLine("Which topping to add: ");
+                        string chosen = Console.ReadLine();
+                        Topping top = new Topping(chosen);
+                        modIceCream.Toppings.Add(top);
+                        return modIceCream;
+                    }
+                case 2:
+                    if (modIceCream.Toppings.Count == 0)
+                    {
+                        Console.WriteLine("No Toppings to remove!");
+                        return modIceCream;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Your toppings: ");
+                        foreach (Topping t in modIceCream.Toppings)
+                        {
+                            Console.WriteLine("-{}", t.Type);
+                        }
+                        Console.Write("Which topping to remove?: ");
+                        string removeTop = Console.ReadLine().ToLower();
+                        foreach (Topping t in modIceCream.Toppings)
+                        {
+                            if (t.Type.ToLower() == removeTop)
+                            {
+                                modIceCream.Toppings.Remove(t);
+                                return modIceCream;
+                            }
+                        }
+
+                    }
+                    return modIceCream;
+            }
         }
 
 
