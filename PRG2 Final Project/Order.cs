@@ -266,7 +266,7 @@ namespace PRG2_Final_Project
                                 }
                             }
                         }
-                        Console.WriteLine("Which topping to add: ");
+                        Console.Write("Which topping to add: ");
                         string chosen = Console.ReadLine();
                         Topping top = new Topping(chosen);
                         modIceCream.Toppings.Add(top);
@@ -299,7 +299,75 @@ namespace PRG2_Final_Project
                     }
                     return modIceCream;
             }
+            return modIceCream;
         }
+
+        private Cone ModifyDippedCone(Cone modIceCream)
+        {
+            while (true)
+            {
+                Console.WriteLine("[0] Exit.");
+                Console.WriteLine("[1] Dip Cone");
+                Console.WriteLine("[2] Undip Cone");
+                Console.Write("Enter your option: ");
+                int Choice = Convert.ToInt32(Console.ReadLine());
+                if (Choice == 0)
+                {
+                    return modIceCream;
+                }
+                else if (Choice == 1)
+                {
+                    modIceCream.Dipped = true;
+                    return modIceCream;
+                }
+                else if (Choice == 2)
+                {
+                    modIceCream.Dipped = false;
+                    return modIceCream;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Option.");
+                }
+            }
+        }
+
+        private Waffle ModifyWaffle(Waffle modIceCream)
+        {
+            string[] WFlavours = { "Original", "Red velvet", "Charcoal", "Pandan" };
+            Console.WriteLine("[0]Exit.");
+            Console.WriteLine("[1]Change flavour.");
+            int option = Convert.ToInt32(Console.ReadLine());
+            switch (option)
+            {
+                case 0:
+                    return modIceCream;
+                case 1:
+                    Console.WriteLine("Current Flavour: {}", modIceCream.WaffleFlavour;
+                    Console.WriteLine();
+                    Console.WriteLine("Available Flavours: ");
+                    foreach (string Flav in WFlavours)
+                    {
+                        Console.WriteLine("-{}", Flav);
+                    }
+                    Console.WriteLine("Choose a flavour: ");
+                    string ChosenFlavour = Console.ReadLine();
+                    foreach (string flav in WFlavours)
+                    {
+                        if (flav.ToLower() == ChosenFlavour.ToLower())
+                        {
+                            modIceCream.WaffleFlavour = flav;
+                            return modIceCream;
+                        }
+                    }
+                    return modIceCream;
+            }
+            return modIceCream;
+
+        }
+
+
+        
 
 
         public void ModifyIceCream(int i)
@@ -314,15 +382,15 @@ namespace PRG2_Final_Project
 
             for (int x = 0; x < PossibleChoices.Count(); x++)
             {
-                Console.Write("[{}]: {}", x + 1, PossibleChoices[i]);
+                Console.WriteLine("[{}]: {}", x + 1, PossibleChoices[i]);
             }
             if (modIceCream is Cone)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Count() + 1, "Cone Dip");
+                Console.WriteLine("[{}]: {}", PossibleChoices.Length + 1, "Cone Dip");
             }
             else if (modIceCream is Waffle)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Count() + 1, "Waffle Flavor");
+                Console.WriteLine("[{}]: {}", PossibleChoices.Length + 1, "Waffle Flavor");
             }
 
             Console.Write("What do you want to modify?: ");
@@ -339,9 +407,21 @@ namespace PRG2_Final_Project
                     modIceCream = ModifyFlavour(modIceCream);
                     break;
                 case 4:
+                    modIceCream = ModifyToppings(modIceCream);
+                    break;
+                case 5:
+                    if (modIceCream is Cone)
+                    {
+                        modIceCream = ModifyDippedCone((Cone)modIceCream);
+                    }
+                    else if(modIceCream is Waffle)
+                    {
+
+                    }
+
                     break;
             }
-
+            iceCreamList[i - 1] = modIceCream;
         }
 
         
