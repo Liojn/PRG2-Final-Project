@@ -343,7 +343,7 @@ namespace PRG2_Final_Project
                 case 0:
                     return modIceCream;
                 case 1:
-                    Console.WriteLine("Current Flavour: {}", modIceCream.WaffleFlavour;
+                    Console.WriteLine("Current Flavour: {}", modIceCream.WaffleFlavour);
                     Console.WriteLine();
                     Console.WriteLine("Available Flavours: ");
                     foreach (string Flav in WFlavours)
