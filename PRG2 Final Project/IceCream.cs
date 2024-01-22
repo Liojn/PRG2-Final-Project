@@ -52,7 +52,7 @@ namespace PRG2_Final_Project
         public abstract double CalculatePrice();
         public override string ToString()
         {
-            return "Option: " + Option + "Scoops: " + Scoops;
+            return "Option: " + Option + "\tScoops: " + Scoops;
         }
 
 

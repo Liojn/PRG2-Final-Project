@@ -62,7 +62,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return base.ToString() + "Dipped: " + Dipped;
+            return base.ToString() + "\tDipped: " + Dipped;
         }
 
 

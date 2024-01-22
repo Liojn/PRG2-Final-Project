@@ -42,7 +42,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return "Type: " + Type + "Premium: " + Premium + "Quantity: " + Quantity;
+            return "Type: " + Type + "\tPremium: " + Premium + "\tQuantity: " + Quantity;
         }
 
 

@@ -60,7 +60,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return base.ToString() + "Waffle Flavour: " + WaffleFlavour;
+            return base.ToString() + "\tWaffle Flavour: " + WaffleFlavour;
         }
     }
 }
