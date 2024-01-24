@@ -8,6 +8,7 @@ namespace Assignment_IceCream_Shop
 {
     class Flavour 
     {
+		//Attributes and Properties
 		private string type;
 
 		public string Type
@@ -32,6 +33,7 @@ namespace Assignment_IceCream_Shop
 			set { quantity = value; }
 		}
 
+		//Constructors
 		public Flavour() { }
 		public Flavour(string t, bool p, int q)
 		{
