@@ -2,9 +2,71 @@
 using System;
 using System.Globalization;
 
+
+//==========================================================
+// Student Number : S10259865
+// Student Name : Kiefer Yew
+// Partner Name : Thet Mon
+//=========================================================
+
+
 Dictionary<int, Customer> customerDict = new Dictionary<int, Customer>();
 Queue<Order> RegularQueue = new Queue<Order>();
 Queue<Order> GoldQueue = new Queue<Order>();
+List<string> Flavours = new List<string>();
+List<string> Toppings = new List<string>();
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void InitaliseFlavour(List<string> Flavours)
+{
+    string line;
+    int count = 0;
+    using StreamReader sr = new StreamReader("flavours.csv");
+    {
+        while ((line = sr.ReadLine()) != null)
+        {
+            if (count == 0)
+            {
+                count++;
+            }
+            else
+            {
+                string[] data = line.Split(",");
+                Flavours.Add(data[0]);
+            }
+        }
+    }
+}
+
+void InitaliseToppings(List<string> Toppings)
+{
+    string line;
+    int count = 0;
+    using StreamReader sr = new StreamReader("toppings.csv");
+    {
+        while((line = sr.ReadLine()) != null)
+        {
+            if (count == 0)
+            {
+                count++;
+            }
+            else
+            {
+                string[] data = line.Split(",");
+                Toppings.Add(data[0]);
+            }
+        }
+    };
+}
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reading the customer.csv file
 void InitialiseCustomers(Dictionary<int,Customer> customerDict)
 {
     string line;
@@ -43,6 +105,8 @@ void InitialiseCustomers(Dictionary<int,Customer> customerDict)
     };
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reading the order.csv file
 void InitaliseOrder(Dictionary<int, Customer> customerDict)
 {
 
@@ -171,7 +235,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
     }
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Menu()
 {
     Console.WriteLine("==========Menu==========");
@@ -183,7 +247,21 @@ void Menu()
     Console.WriteLine("[6]Modify Order Detail.");
 }
 
-//Printing orders
+
+//Listing all customer information (Feature 1)
+void ListCustomer(Dictionary<int, Customer> customerDict)
+{
+    Console.WriteLine("CUSTOMER INFORMATION: ");
+    Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", "Name", "Membership ID", "Date of Birth", "Membership Status", "Membership Points", "Punch Card", "Tier");
+    foreach (var kvp in customerDict)
+    {
+        Customer customer = kvp.Value;
+        Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", customer.Name, customer.MemberId, customer.Dob.ToString("dd/MM/yyyy"), customer.Rewards.Tier, customer.Rewards.Points, customer.Rewards.PunchCards);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//Printing orders geenralised method
 void OrderPrint(Queue<Order> queue)
 {
     foreach (Order o in queue)
@@ -236,20 +314,29 @@ void OrderPrint(Queue<Order> queue)
         Console.WriteLine();
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//List Current orders Feature 2
+///////////////////////////////////////////////////////////////////////////////////  List Current orders Feature 2
 void ListCurrentOrders(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
 {
     Console.WriteLine("==========Gold Queue Orders==========");
     OrderPrint(GoldQueue);
+    if (GoldQueue.Count == 0)
+    {
+        Console.WriteLine("No orders yets.");
+    }
     Console.WriteLine("==========Regular Queue Orders==========");
     OrderPrint(RegularQueue);
+    if (RegularQueue.Count == 0)
+    {
+        Console.WriteLine("No orders yets.");
+    }
 
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-//Print customers
+//////////////////////////////////////////////////////////////////////////////////////////////////////Print customers
 Customer printCustomers(Dictionary<int, Customer> customerDict)
 {
     Console.WriteLine("Customers: ");
@@ -257,24 +344,186 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
     {
         Console.WriteLine("-{0}", customer.Name);
     }
-    Console.Write("Select a customer: ");
-    string option = Console.ReadLine().ToLower();
-    Customer wantedCustomer = new Customer();
-    foreach (KeyValuePair<int, Customer> kvp in customerDict)
+    while (true)
     {
-        if (kvp.Value.Name.ToLower() == option)
-        {
-            wantedCustomer = kvp.Value;
-        }
+            Console.Write("Select a customer: ");
+            string option = Console.ReadLine().ToLower();
+            Customer wantedCustomer = new Customer();
+            bool found = false;
+            foreach (KeyValuePair<int, Customer> kvp in customerDict)
+            {
+                if (kvp.Value.Name.ToLower() == option)
+                {
+                    wantedCustomer = kvp.Value;
+                    found = true;
+                }
+            }
+            if (found)
+            {
+                return wantedCustomer;
+            }
+            else
+            {
+                Console.WriteLine("Customer not found. Try again");
+            }
     }
-    return wantedCustomer;
 }
 
-//Display Order details of a customer
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      Registering a new customer (Feature 3)
+void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
+{
+    Console.Write("Enter customer's name: ");
+    string name = Console.ReadLine();
+    Console.Write("Enter Membership ID number: ");
+    int memberId = Convert.ToInt32(Console.ReadLine());
+    Console.Write("Enter Customer's Date-Of-Birth (dd/MM/yyyy): ");
+    DateTime dob = Convert.ToDateTime(Console.ReadLine());
+
+    Customer newCustomer = new Customer(name, memberId, dob);
+
+    PointCard newPointCard = new PointCard(0, 0);
+    newPointCard.Tier = "Ordinary";
+    newCustomer.Rewards = newPointCard;
+
+    customerDict.Add(memberId, newCustomer);
+
+    Console.WriteLine("Registration successful!");
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Creating a customer's order (Feature 4)
+void CreateCustomerOrder(Dictionary<int, Customer> customerDict)
+{
+    Console.WriteLine("CREATING CUSTOMER ORDER: \n");
+    ListCustomer(customerDict);
+    Console.Write("\nEnter customer's name: ");
+    string name = Console.ReadLine();
+
+    Customer currentCustomer = new Customer();
+    foreach (var kvp in customerDict)
+    {
+        if (kvp.Value.Name == name)
+        {
+            currentCustomer = kvp.Value;
+        }
+    }
+
+    string[] orderLine = File.ReadAllLines("orders.csv");
+    for (int i = 1; i < orderLine.Length; i++)
+    {
+        string[] orderData = orderLine[i].Split(",");
+        int orderId = Convert.ToInt32(orderData[0]);
+        int memberId = Convert.ToInt32(orderData[1]);
+
+        if (currentCustomer.MemberId == memberId)
+        {
+            Order currentIceCreamOrder = IceCreamOptionChoice(flavourList, toppingList);
+            Order orderDetails = currentCustomer.MakeOrder();
+            Order order = new Order(orderId, orderDetails.TimeReceived);
+
+            Console.WriteLine(currentCustomer);
+
+            Console.Write("Would you like to add another ice cream to the order [Y/N]: ");
+            string addOrderChoice = Console.ReadLine();
+
+            while (addOrderChoice != "N")
+            {
+                Order newCurrentIceCreamOrder = IceCreamOptionChoice(flavourList, toppingList);
+                Order newOrderDetails = currentCustomer.MakeOrder();
+                Order newOrder = new Order(orderId, orderDetails.TimeReceived);
+
+                Console.Write("Would you like to add another ice cream to the order [Y/N]: ");
+                addOrderChoice = Console.ReadLine();
+            }
+
+        }
+
+    }
+}
+static Order IceCreamOptionChoice(List<Flavour> flavourList, List<Topping> toppingList)
+{
+    Console.Write("Enter your ice cream option: ");
+    string iceCreamOption = Console.ReadLine();
+
+    Console.Write("Enter the number of ice cream scoops: ");
+    int noOfScoops = Convert.ToInt32(Console.ReadLine());
+
+    for (int i = 0; i < noOfScoops; i++)
+    {
+        Console.Write("Enter the ice cream flavour: ");
+        string flavourType = Console.ReadLine();
+        bool isPremium = false;
+        string[] flavourLine = File.ReadAllLines("flavours.csv");
+        for (int j = 1; j < flavourLine.Length; j++)
+        {
+            string[] flavourData = flavourLine[j].Split(",");
+            double flavourCost = Convert.ToDouble(flavourData[1]);
+            if (flavourData[0] == flavourType)
+            {
+                if (flavourCost != 0)
+                {
+                    isPremium = true;
+                }
+            }
+        }
+        Flavour flavour = new Flavour(flavourType, isPremium, 1);
+        flavourList.Add(flavour);
+    }
+
+    Console.Write("Enter the number of toppings to add: ");
+    int noOfToppings = Convert.ToInt32(Console.ReadLine());
+    for (int i = 0; i < noOfToppings; i++)
+    {
+        Console.Write("Enter topping type: ");
+        string toppingType = Console.ReadLine();
+
+        Topping topping = new Topping(toppingType);
+        toppingList.Add(topping);
+    }
+
+    Order order = new Order();
+
+    if (iceCreamOption == "Cup")
+    {
+        IceCream iceCreamOrder = new Cup(iceCreamOption, noOfScoops, flavourList, toppingList);
+        order.AddIceCream(iceCreamOrder);
+    }
+    else if (iceCreamOption == "Cone")
+    {
+        Console.Write("Do you want to upgrade to Chocolate-dipped cone? [Y/N]: ");
+        string choice = Console.ReadLine();
+        bool isDipped = false;
+        if (choice == "Y")
+        {
+            isDipped = true;
+        }
+        IceCream iceCreamOrder = new Cone(iceCreamOption, noOfScoops, flavourList, toppingList, isDipped);
+        order.AddIceCream(iceCreamOrder);
+    }
+    else if (iceCreamOption == "Waffle")
+    {
+        Console.Write("Enter Waffle flavour: ");
+        string wFlavour = Console.ReadLine();
+
+        IceCream iceCreamOrder = new Waffle(iceCreamOption, noOfScoops, flavourList, toppingList, wFlavour);
+        order.AddIceCream(iceCreamOrder);
+    }
+    return (order);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
 void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
   
     Customer wantedCustomer = printCustomers(customerDict);
+    if (wantedCustomer.orderHistory.Count == 0)
+    {
+        Console.WriteLine("Customer has no orders");
+        return;
+    }
     Console.WriteLine("==========Current and Past Order Details==========");
     foreach (Order o in wantedCustomer.orderHistory)
     {
@@ -327,10 +576,21 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
     }
 
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Getting index for option 6, modify ice cream
 int printSelected(Customer wantedCustomer)
 {
     List<IceCream> iceList = wantedCustomer.CurrentOrder.iceCreamList;
+    if (iceList.Count == 0)
+    {
+        if (wantedCustomer.orderHistory.Count == 0)
+        {
+            Console.WriteLine("Customer has no orders");
+            return 0;
+        }
+    }
     string s = "";
     List<string> k = new List<string>();
     List<string> t = new List<string>();
@@ -380,9 +640,9 @@ int printSelected(Customer wantedCustomer)
     Console.WriteLine();
     return 1;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 InitialiseCustomers(customerDict);
-InitaliseOrder(RegularQueue, GoldQueue, customerDict);
+InitaliseOrder(customerDict);
 
 
 
@@ -395,28 +655,40 @@ while (option != 0)
 {
     Menu();
     Console.Write("Enter your option: ");
-    option = Convert.ToInt32(Console.ReadLine());
-    Console.WriteLine();
-    switch (option)
+    try
     {
-        case 1:
-
-            break;
-        case 2:
-            ListCurrentOrders(GoldQueue, RegularQueue);
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
-        case 5:
-            OrderDetailsCustomer(customerDict);
-            break;
-        case 6:
-            Customer wantedCustomer = printCustomers(customerDict);
-            int index = printSelected(wantedCustomer);
-            break;
+        option = Convert.ToInt32(Console.ReadLine());
+        Console.WriteLine();
+        switch (option)
+        {
+            case 1:
+                ListCustomer(customerDict);
+                break;
+            case 2:
+                ListCurrentOrders(GoldQueue, RegularQueue);
+                break;
+            case 3:
+                RegisterNewCustomer(customerDict);
+                break;
+            case 4:
+                CreateCustomerOrder(customerDict);
+                break;
+            case 5:
+                OrderDetailsCustomer(customerDict);
+                break;
+            case 6:
+                Customer wantedCustomer = printCustomers(customerDict);
+                int index = printSelected(wantedCustomer);
+                break;
+            default:
+                Console.WriteLine("Give a valid option");
+                 break;
+        }
     }
+    catch(Exception ex) 
+    {
+        Console.WriteLine("An unexpected error occurred: {0)", ex.Message);
+    };
 }
 
 

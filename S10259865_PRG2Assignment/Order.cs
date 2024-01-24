@@ -37,21 +37,35 @@ namespace PRG2_Final_Project
             Console.WriteLine("[3]Switch to Waffle.");
             Console.WriteLine("[0]Exit.");
             Console.Write("Enter your option: ");
-            int swap = Convert.ToInt32(Console.ReadLine());
-
-            switch (swap)
+            while (true)
             {
-                case 0:
+                try
+                {
+                    int swap = Convert.ToInt32(Console.ReadLine());
+                    switch (swap)
+                    {
+                        case 0:
+                            break;
+                        case 1 when modIceCream is not Cup:
+                            modIceCream = (Cup)modIceCream;
+                            break;
+                        case 2 when modIceCream is not Cone:
+                            modIceCream = (Cone)modIceCream;
+                            break;
+                        case 3 when modIceCream is not Waffle:
+                            modIceCream = (Waffle)modIceCream;
+                            break;
+                        default:
+                            Console.WriteLine("Enter a valid option.");
+                            break;
+
+                    }
                     break;
-                case 1 when modIceCream is not Cup:
-                    modIceCream = (Cup)modIceCream;
-                    break;
-                case 2 when modIceCream is not Cone:
-                    modIceCream = (Cone)modIceCream;
-                    break;
-                case 3 when modIceCream is not Waffle:
-                    modIceCream = (Waffle)modIceCream;
-                    break;
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Enter a valid number");
+                }
             }
 
             return modIceCream;
@@ -62,57 +76,83 @@ namespace PRG2_Final_Project
         {
             string[] RegularFlavours = { "Vanilla", "Chocolate", "Strawberry" };
             string[] PremiumFlavours = { "Durian", "Ube", "Sea salt" };
-        
+            int Scoops = -1;
             while (true)
             {
-                Console.WriteLine("Current Scoop: {}", modIceCream.Scoops);
-                Console.WriteLine("[1]Remove Scoop");
-                Console.WriteLine("[2]Add Scoop");
-                Console.WriteLine("[0]Exit.");
-                Console.Write("Enter your option: ");
-                int Scoops = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine();
+                try
+                {
+                    Console.WriteLine("Current Scoop: {}", modIceCream.Scoops);
+                    Console.WriteLine("[1]Remove Scoop");
+                    Console.WriteLine("[2]Add Scoop");
+                    Console.WriteLine("[0]Exit.");
+                    Console.Write("Enter your option: ");
+                    Scoops = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine();
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Give a valid number");
+                }
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 switch (Scoops)
                 {
                     case 0:
-                        return modIceCream;
+                        break;
+
+                    /////////////////////////////////////////////////////////
+                    
                     case 1:
                         if (Scoops == 0)
                         {
                             Console.WriteLine("Cannot Remove Scoops");
-                            return modIceCream;
+                            break;
                         }
                         Console.WriteLine("Your flavour(s): ");
                         foreach (Flavour f in modIceCream.Flavours)
                         {
                             Console.WriteLine("-{}", f);
                         }
-                        Console.Write("Enter the flavour: ");
-                        string RemoveF = Console.ReadLine();
-                        for (int j = 0; j < modIceCream.Flavours.Count(); j++)
+                        try
                         {
-                            if (modIceCream.Flavours[j].Type.ToLower() == RemoveF.ToLower())
+                            Console.Write("Enter the flavour: ");
+                            string RemoveF = Console.ReadLine();
+                            bool Found = false;
+                            for (int j = 0; j < modIceCream.Flavours.Count(); j++)
                             {
-                                if (modIceCream.Flavours[j].Quantity == 0)
+                                if (modIceCream.Flavours[j].Type.ToLower() == RemoveF.ToLower())
                                 {
-                                    modIceCream.Flavours.RemoveAt(j);
-                                    break;
+                                    if (modIceCream.Flavours[j].Quantity == 0)
+                                    {
+                                        Console.WriteLine("Flavour removed {0}", modIceCream.Flavours[j].Type);
+                                        modIceCream.Flavours.RemoveAt(j);
+                                        Found = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        modIceCream.Flavours[j].Quantity -= 1;
+                                        break;
+                                    }
                                 }
-                                else
-                                {
-                                    modIceCream.Flavours[j].Quantity -= 1;
-                                    break;
-                                }
-
                             }
+                            if (Found) Console.WriteLine();
+
+                            break;
+                        }
+                        catch (FormatException)
+                        {
+                            Console.WriteLine("Enter a valid flavour");
                         }
                         return modIceCream;
+
+                    ////////////////////////////////////////////////////////////////////
+
                     case 2:
                         bool premium = false;
                         if (Scoops == 3)
                         {
                             Console.WriteLine("Cannot Add Scoops");
-                            return modIceCream;
+                            break;
                         }
                         Console.WriteLine("Regular Flavour List: ");
                         foreach (string x in RegularFlavours)
@@ -140,19 +180,22 @@ namespace PRG2_Final_Project
                             if (x.Type.ToLower() == Chosen.ToLower())
                             {
                                 x.Quantity += 1;
-                                return modIceCream;
-                            }     
+                                break;
+                            }
                             else
                             {
                                 Flavour newFlavour = new Flavour(Chosen, premium, 1);
                                 modIceCream.Flavours.Add(newFlavour);
-                                return modIceCream;
+                                break;
                             }
                         }
                         return modIceCream;
+                    default:
+                        Console.WriteLine("Give a valid option.");
+                        break;
                 }
-
-            };
+                return modIceCream;
+            }
         }
 
         private IceCream ModifyFlavour(IceCream modIceCream)
@@ -181,6 +224,7 @@ namespace PRG2_Final_Project
                         Console.WriteLine("-{}", (x));
                     }
                     Console.Write("What flavour do you want?: ");
+
                     string Chosen = Console.ReadLine();
                     Console.WriteLine();
                     Console.WriteLine("Flavours you currently have: ");
@@ -372,6 +416,7 @@ namespace PRG2_Final_Project
 
         public void ModifyIceCream(int i)
         {
+
             string[] PossibleChoices = { "Option", "Scoops", "Flavors","Toppings" };
             IceCream modIceCream = iceCreamList[i - 1];
             if (iceCreamList.Count <= 0)
@@ -392,34 +437,43 @@ namespace PRG2_Final_Project
             {
                 Console.WriteLine("[{}]: {}", PossibleChoices.Length + 1, "Waffle Flavor");
             }
-
-            Console.Write("What do you want to modify?: ");
-            int option = Convert.ToInt32(Console.ReadLine());
-            switch (option)
+            while (true)
             {
-                case 1:
-                    modIceCream = ModifyOption(modIceCream);
-                    break;
-                case 2:
-                    modIceCream = ModifyScoops(modIceCream);
-                    break;
-                case 3:
-                    modIceCream = ModifyFlavour(modIceCream);
-                    break;
-                case 4:
-                    modIceCream = ModifyToppings(modIceCream);
-                    break;
-                case 5:
-                    if (modIceCream is Cone)
+                try
+                {
+                    Console.Write("What do you want to modify?: ");
+                    int option = Convert.ToInt32(Console.ReadLine());
+                    switch (option)
                     {
-                        modIceCream = ModifyDippedCone((Cone)modIceCream);
-                    }
-                    else if(modIceCream is Waffle)
-                    {
+                        case 1:
+                            modIceCream = ModifyOption(modIceCream);
+                            break;
+                        case 2:
+                            modIceCream = ModifyScoops(modIceCream);
+                            break;
+                        case 3:
+                            modIceCream = ModifyFlavour(modIceCream);
+                            break;
+                        case 4:
+                            modIceCream = ModifyToppings(modIceCream);
+                            break;
+                        case 5:
+                            if (modIceCream is Cone)
+                            {
+                                modIceCream = ModifyDippedCone((Cone)modIceCream);
+                            }
+                            else if (modIceCream is Waffle)
+                            {
 
-                    }
+                            }
 
-                    break;
+                            break;
+                    }
+                }
+                catch(FormatException)
+                {
+                    Console.WriteLine("Give a valid option");
+                }
             }
             iceCreamList[i - 1] = modIceCream;
         }

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
+
 namespace PRG2_Final_Project
 {
     class Waffle : IceCream
@@ -28,15 +31,15 @@ namespace PRG2_Final_Project
             double price = 0;
             if (Scoops == 1)
             {
-                price = 4;
+                price = 7;
             }
             else if (Scoops == 2)
             {
-                price = 5.5;
+                price = 8.5;
             }
             else if (Scoops == 3)
             {
-                price = 6.50;
+                price = 9.50;
             }
 
             price += Toppings.Count * 1;
@@ -49,9 +52,9 @@ namespace PRG2_Final_Project
                 }
             }
 
-            if (WaffleFlavour == "Durian" || WaffleFlavour == "Ube" || WaffleFlavour == "Sea salt")
+            if (WaffleFlavour == "Red Velvet" || WaffleFlavour == "charcoal" || WaffleFlavour == "pandan")
             {
-                price += 2;
+                price += 3;
             }
 
             return price;
