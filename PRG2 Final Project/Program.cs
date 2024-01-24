@@ -43,7 +43,7 @@ void InitialiseCustomers(Dictionary<int,Customer> customerDict)
     };
 }
 
-void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionary<int, Customer> customerDict)
+void InitaliseOrder(Dictionary<int, Customer> customerDict)
 {
 
     string line;
@@ -84,7 +84,7 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                 for (int i = 8; i <= 10; i++)
                 {
                     bool noExist = false;
-                    string Flavour = data[i];   
+                    string Flavour = data[i];
                     if (!string.IsNullOrEmpty(Flavour))
                     {
                         if (Flavour == "Durian" || Flavour == "Ube" || Flavour == "Sea Salt")
@@ -101,14 +101,18 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                                 noExist = true;
                             }
                         }
-                        if (noExist == false) 
+                        if (noExist == false)
                         {
                             flavourList.Add(newFlavour);
                         }
-                       
-;                    }
+;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                
+
                 for (int j = 11; j <= 14; j++)
                 {
                     string Topping = data[j];
@@ -116,6 +120,10 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                     {
                         Topping top = new Topping(Topping);
                         toppingsList.Add(top);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
 
@@ -142,7 +150,7 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                     ice.Toppings = toppingsList;
                 }
 
-                foreach (KeyValuePair<int,Customer> kvp in customerDict)
+               /* foreach (KeyValuePair<int,Customer> kvp in customerDict)
                 {
                     if (MemberID == kvp.Key)
                     {
@@ -157,7 +165,7 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                             RegularQueue.Enqueue(order);
                         }
                     }
-                }
+                }*/
             }
         }
     }
@@ -265,16 +273,69 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
 //Display Order details of a customer
 void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
+  
+    Customer wantedCustomer = printCustomers(customerDict);
+    Console.WriteLine("==========Current and Past Order Details==========");
+    foreach (Order o in wantedCustomer.orderHistory)
+    {
+        string s = "";
+        List<string> k = new List<string>();
+        List<string> t = new List<string>();
+        string mod = "None";
+        foreach (IceCream ice in o.iceCreamList)
+        {
+            foreach (Flavour f in ice.Flavours)
+            {
+                if (f.Premium == true)
+                {
+                    string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
+                    k.Add(y);
+                }
+                else
+                {
+                    string y = f.Type + " Quantity: " + f.Quantity;
+                    k.Add(y);
+                }
+
+            }
+            foreach (Topping i in ice.Toppings)
+            {
+                t.Add(i.Type);
+            }
+            if (ice.Toppings.Count == 0)
+            {
+                t.Add("None");
+            }
+
+            if (ice is Waffle)
+            {
+                Waffle waf = (Waffle)ice;
+                mod = waf.WaffleFlavour;
+            }
+            else if (ice is Cone)
+            {
+                Cone co = (Cone)ice;
+                mod = Convert.ToString(co.Dipped);
+            }
+            string joinedFlavour = String.Join(",", k.ToArray());
+            string joinedTopping = String.Join(",", t.ToArray());
+            s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping;
+        }
+
+        Console.WriteLine("ID: {0,-5}{1,-22}{2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, s);
+        Console.WriteLine();
+    }
 
 }
 
-IceCream printSelected(Customer wantedCustomer)
+int printSelected(Customer wantedCustomer)
 {
     List<IceCream> iceList = wantedCustomer.CurrentOrder.iceCreamList;
     string s = "";
     List<string> k = new List<string>();
     List<string> t = new List<string>();
     string mod = "None";
+    Console.WriteLine("=================================Current Orders==========================================");
     foreach (IceCream ice in iceList)
     {
         foreach (Flavour f in ice.Flavours)
@@ -317,7 +378,7 @@ IceCream printSelected(Customer wantedCustomer)
 
     Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
     Console.WriteLine();
-    return iceList[1];
+    return 1;
 }
 
 InitialiseCustomers(customerDict);
@@ -353,7 +414,7 @@ while (option != 0)
             break;
         case 6:
             Customer wantedCustomer = printCustomers(customerDict);
-
+            int index = printSelected(wantedCustomer);
             break;
     }
 }
