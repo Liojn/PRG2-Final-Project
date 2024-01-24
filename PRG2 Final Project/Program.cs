@@ -43,7 +43,7 @@ void InitialiseCustomers(Dictionary<int,Customer> customerDict)
     };
 }
 
-void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionary<int, Customer> customerDict)
+void InitaliseOrder(Dictionary<int, Customer> customerDict)
 {
 
     string line;
@@ -84,7 +84,7 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                 for (int i = 8; i <= 10; i++)
                 {
                     bool noExist = false;
-                    string Flavour = data[i];   
+                    string Flavour = data[i];
                     if (!string.IsNullOrEmpty(Flavour))
                     {
                         if (Flavour == "Durian" || Flavour == "Ube" || Flavour == "Sea Salt")
@@ -101,14 +101,18 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                                 noExist = true;
                             }
                         }
-                        if (noExist == false) 
+                        if (noExist == false)
                         {
                             flavourList.Add(newFlavour);
                         }
-                       
-;                    }
+;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                
+
                 for (int j = 11; j <= 14; j++)
                 {
                     string Topping = data[j];
@@ -116,6 +120,10 @@ void InitaliseOrder(Queue<Order> RegularQueue, Queue<Order> GoldQueue, Dictionar
                     {
                         Topping top = new Topping(Topping);
                         toppingsList.Add(top);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
 
