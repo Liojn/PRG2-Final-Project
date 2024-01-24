@@ -8,6 +8,7 @@ namespace Assignment_IceCream_Shop
 {
     class Topping
     {
+		//Attributes and Properties
 		private string type;
 
 		public string Type
@@ -16,6 +17,7 @@ namespace Assignment_IceCream_Shop
 			set { type = value; }
 		}
 
+		//Constructors
 		public Topping() { }
 		public Topping(string t)
 		{

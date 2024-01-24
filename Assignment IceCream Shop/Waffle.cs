@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Assignment_IceCream_Shop
 {
-    class Waffle : IceCream
+    class Waffle : IceCream //Cone class inherit method from IceCream class
     {
+        //Attributes and Properties
 		private string waffleFlavour;
 
 		public string WaffleFlavour
@@ -16,6 +17,7 @@ namespace Assignment_IceCream_Shop
 			set { waffleFlavour = value; }
 		}
 
+        //Constructors
 		public Waffle() { }
 
 		public Waffle(string o, int s, List<Flavour> f, List<Topping> t, string w) : base(o, s, f, t)
@@ -23,9 +25,11 @@ namespace Assignment_IceCream_Shop
 			WaffleFlavour = w;
 		}
 
+        //Method inherited from IceCream 
         public override double CalculatePrice()
         {
             double price = 0;
+            //Numbers of ice cream scoops
             if (Scoops == 1)
             {
                 price = 4;
@@ -39,8 +43,10 @@ namespace Assignment_IceCream_Shop
                 price = 6.50;
             }
 
+            //Number of toppings
             price += Toppings.Count * 1;
 
+            //Flavour of ice cream chosen
             for (int i = 0; i < Flavours.Count; i++)
             {
                 if (Flavours[i].Premium == true)
@@ -49,6 +55,7 @@ namespace Assignment_IceCream_Shop
                 }
             }
 
+            //Whether the waffle flavour the customer chosen is original or premium
             if (WaffleFlavour == "Durian" || WaffleFlavour == "Ube" || WaffleFlavour == "Sea salt")
             {
                 price += 2;

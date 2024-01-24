@@ -8,6 +8,7 @@ namespace Assignment_IceCream_Shop
 {
     abstract class IceCream
     {
+		//Attributes and Properties
 		private string option;
 
 		public string Option
@@ -24,6 +25,7 @@ namespace Assignment_IceCream_Shop
 			set { scoops = value; }
 		}
 
+		//one to many multiplicity from IceCream to Flavour class
 		private List<Flavour> flavours;
 
 		public List<Flavour> Flavours
@@ -32,6 +34,7 @@ namespace Assignment_IceCream_Shop
 			set { flavours = value; }
 		}
 
+		//one to many multiplicity from IceCream to Topping class
 		private List<Topping> toppings;
 
 		public List<Topping> Toppings
@@ -40,6 +43,7 @@ namespace Assignment_IceCream_Shop
 			set { toppings = value; }
 		}
 
+		//Constructors
 		public IceCream() { }
 		public IceCream(string o, int s, List<Flavour> f, List<Topping> t)
 		{
@@ -49,6 +53,7 @@ namespace Assignment_IceCream_Shop
 			Toppings = t;
 		}
 
+		//Abstract method CalculatePrice()
 		public abstract double CalculatePrice();
         public override string ToString()
         {
