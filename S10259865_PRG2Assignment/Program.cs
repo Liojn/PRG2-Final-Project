@@ -11,15 +11,16 @@ using System.Globalization;
 
 
 Dictionary<int, Customer> customerDict = new Dictionary<int, Customer>();
+List<Order> orders = new List<Order>();
 Queue<Order> RegularQueue = new Queue<Order>();
 Queue<Order> GoldQueue = new Queue<Order>();
-List<string> Flavours = new List<string>();
-List<string> Toppings = new List<string>();
+Dictionary<string, int> FlavoursFile = new Dictionary<string, int>();
+List<string> ToppingsFile = new List<string>();
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void InitaliseFlavour(List<string> Flavours)
+void InitaliseFlavour(Dictionary<string,int>FlavoursFile)
 {
     string line;
     int count = 0;
@@ -34,7 +35,7 @@ void InitaliseFlavour(List<string> Flavours)
             else
             {
                 string[] data = line.Split(",");
-                Flavours.Add(data[0]);
+                FlavoursFile.Add(data[0], Convert.ToInt32(data[1]));
             }
         }
     }
@@ -55,7 +56,7 @@ void InitaliseToppings(List<string> Toppings)
             else
             {
                 string[] data = line.Split(",");
-                Toppings.Add(data[0]);
+                ToppingsFile.Add(data[0]);
             }
         }
     };
@@ -67,7 +68,7 @@ void InitaliseToppings(List<string> Toppings)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reading the customer.csv file
-void InitialiseCustomers(Dictionary<int,Customer> customerDict)
+void InitialiseCustomers(Dictionary<int,Customer> customerDict,List<Order>orders)
 {
     string line;
     int count = 0;
@@ -195,41 +196,33 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                 if (Option == "Waffle")
                 {
                     IceCream ice = new Waffle(Option, Scoops, flavourList, toppingsList, waffleFlavour);
-                    order.iceCreamList.Add(ice);
+                    order.AddIceCream(ice);
                     ice.Flavours = flavourList;
                     ice.Toppings = toppingsList;
                 }
                 else if (Option == "Cone")
                 {
                     IceCream ice = new Cone(Option, Scoops, flavourList, toppingsList, dippedCone);
-                    order.iceCreamList.Add(ice);
+                    order.AddIceCream(ice);
                     ice.Flavours = flavourList;
                     ice.Toppings = toppingsList;
                 }
                 else
                 {
                     IceCream ice = new Cup(Option, Scoops, flavourList, toppingsList);
-                    order.iceCreamList.Add(ice);
+                    order.AddIceCream(ice);
                     ice.Flavours = flavourList;
                     ice.Toppings = toppingsList;
                 }
-
-               /* foreach (KeyValuePair<int,Customer> kvp in customerDict)
+                foreach (KeyValuePair<int, Customer> kvp in customerDict)
                 {
                     if (MemberID == kvp.Key)
                     {
-                        if (kvp.Value.Rewards.Tier == "Gold")
-                        {
-                            kvp.Value.orderHistory.Add(order);
-                            GoldQueue.Enqueue(order);
-                        }
-                        else
-                        {
-                            kvp.Value.orderHistory.Add(order);
-                            RegularQueue.Enqueue(order);
-                        }
+                        kvp.Value.orderHistory.Add(order);
+                        break;
                     }
-                }*/
+                }
+                orders.Add(order);
             }
         }
     }
@@ -394,23 +387,36 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Creating a customer's order (Feature 4)
-void CreateCustomerOrder(Dictionary<int, Customer> customerDict)
+void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order>orders,Dictionary<string,int>FlavoursFile,List<string>ToppingsFile)
 {
     Console.WriteLine("CREATING CUSTOMER ORDER: \n");
     ListCustomer(customerDict);
     Console.Write("\nEnter customer's name: ");
     string name = Console.ReadLine();
+    int id = 0;
+    Order currentOrder = new Order();
 
-    Customer currentCustomer = new Customer();
+    if (orders.Count > 0)
+    {
+        id = orders[orders.Count - 1].Id + 1;
+    }
+
     foreach (var kvp in customerDict)
     {
         if (kvp.Value.Name == name)
         {
-            currentCustomer = kvp.Value;
+            kvp.Value.MakeOrder();
+            kvp.Value.CurrentOrder.Id = id;
+            currentOrder = kvp.Value.CurrentOrder;
+            break;
         }
     }
 
-    string[] orderLine = File.ReadAllLines("orders.csv");
+
+    currentOrder = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+   
+    
+   /* string[] orderLine = File.ReadAllLines("orders.csv");
     for (int i = 1; i < orderLine.Length; i++)
     {
         string[] orderData = orderLine[i].Split(",");
@@ -419,6 +425,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict)
 
         if (currentCustomer.MemberId == memberId)
         {
+            
             Order currentIceCreamOrder = IceCreamOptionChoice(flavourList, toppingList);
             Order orderDetails = currentCustomer.MakeOrder();
             Order order = new Order(orderId, orderDetails.TimeReceived);
@@ -440,39 +447,61 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict)
 
         }
 
-    }
+    }*/
 }
-static Order IceCreamOptionChoice(List<Flavour> flavourList, List<Topping> toppingList)
+static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<string> ToppingsFile, Order currentOrder)
 {
+    string[] options = { "Ordinary", "Pandan", "Red Velvet", "Charcoal" };
+    Console.WriteLine("Possible Options: ");
+    foreach (string s in options)
+    {
+        Console.Write("| {0,-15} |", s);
+    }
+    Console.WriteLine();
     Console.Write("Enter your ice cream option: ");
     string iceCreamOption = Console.ReadLine();
+    if (iceCreamOption.ToLower() == "waffle")
+    {
 
-    Console.Write("Enter the number of ice cream scoops: ");
+    }
+    else if (iceCreamOption.ToLower() == "cone")
+    {
+
+    }
+
+
+    Console.Write("Enter the number of ice cream scoops (Max 3): ");
     int noOfScoops = Convert.ToInt32(Console.ReadLine());
 
+
+    Console.WriteLine("Flavour Available:");
+    foreach (string flav in FlavoursFile.Keys)
+    {
+        Console.Write("{0,-15}", flav);
+    }
+
+    Console.Write("Enter the number of ice cream scoops (Max 3): ");
+    int noOfScoops = Convert.ToInt32(Console.ReadLine());
+    Console.WriteLine();
     for (int i = 0; i < noOfScoops; i++)
     {
         Console.Write("Enter the ice cream flavour: ");
         string flavourType = Console.ReadLine();
         bool isPremium = false;
-        string[] flavourLine = File.ReadAllLines("flavours.csv");
-        for (int j = 1; j < flavourLine.Length; j++)
+        foreach (KeyValuePair<string,int> kvp in FlavoursFile)
         {
-            string[] flavourData = flavourLine[j].Split(",");
-            double flavourCost = Convert.ToDouble(flavourData[1]);
-            if (flavourData[0] == flavourType)
+            if (flavourType.ToLower() == kvp.Key.ToLower() && kvp.Value != 0)
             {
-                if (flavourCost != 0)
-                {
-                    isPremium = true;
-                }
+                isPremium = true;
             }
         }
+        
         Flavour flavour = new Flavour(flavourType, isPremium, 1);
-        flavourList.Add(flavour);
+
+       /* flavourList.Add(flavour);*/
     }
 
-    Console.Write("Enter the number of toppings to add: ");
+   /* Console.Write("Enter the number of toppings to add: ");
     int noOfToppings = Convert.ToInt32(Console.ReadLine());
     for (int i = 0; i < noOfToppings; i++)
     {
@@ -509,8 +538,8 @@ static Order IceCreamOptionChoice(List<Flavour> flavourList, List<Topping> toppi
 
         IceCream iceCreamOrder = new Waffle(iceCreamOption, noOfScoops, flavourList, toppingList, wFlavour);
         order.AddIceCream(iceCreamOrder);
-    }
-    return (order);
+    }*/
+    return (currentOrder);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -641,8 +670,10 @@ int printSelected(Customer wantedCustomer)
     return 1;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-InitialiseCustomers(customerDict);
+InitialiseCustomers(customerDict,orders);
 InitaliseOrder(customerDict);
+InitaliseFlavour(FlavoursFile);
+InitaliseToppings(ToppingsFile);
 
 
 
@@ -671,7 +702,7 @@ while (option != 0)
                 RegisterNewCustomer(customerDict);
                 break;
             case 4:
-                CreateCustomerOrder(customerDict);
+                CreateCustomerOrder(customerDict,orders,FlavoursFile,ToppingsFile);
                 break;
             case 5:
                 OrderDetailsCustomer(customerDict);

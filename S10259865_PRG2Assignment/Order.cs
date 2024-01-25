@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -148,48 +149,62 @@ namespace PRG2_Final_Project
                     ////////////////////////////////////////////////////////////////////
 
                     case 2:
-                        bool premium = false;
-                        if (Scoops == 3)
+                        while (true)
                         {
-                            Console.WriteLine("Cannot Add Scoops");
-                            break;
-                        }
-                        Console.WriteLine("Regular Flavour List: ");
-                        foreach (string x in RegularFlavours)
-                        {
-                            Console.WriteLine("-{}", (x));
-                        }
-                        Console.WriteLine("Premium Flavour List: ");
-                        foreach (string x in PremiumFlavours)
-                        {
-                            Console.WriteLine("-{}", (x));
-                        }
-                        Console.Write("What flavour do you want the new scoop to be?: ");
-                        string Chosen = Console.ReadLine();
-                        Chosen.ToLower();
-                        foreach (string x in PremiumFlavours)
-                        {
-                            if (x.ToLower() == Chosen)
+                            try
                             {
-                                premium = true;
-                                break;
+                                bool premium = false;
+                                if (Scoops == 3)
+                                {
+                                    Console.WriteLine("Cannot Add Scoops");
+                                    break;
+                                }
+                                Console.WriteLine("Regular Flavour List: ");
+                                foreach (string x in RegularFlavours)
+                                {
+                                    Console.WriteLine("-{}", (x));
+                                }
+                                Console.WriteLine("Premium Flavour List: ");
+                                foreach (string x in PremiumFlavours)
+                                {
+                                    Console.WriteLine("-{}", (x));
+                                }
+                                Console.Write("What flavour do you want the new scoop to be?: ");
+                                string Chosen = Console.ReadLine();
+                                Chosen.ToLower();
+                                foreach (string x in PremiumFlavours)
+                                {
+                                    if (x.ToLower() == Chosen)
+                                    {
+                                        premium = true;
+                                        break;
+                                    }
+                                }
+                                foreach (Flavour x in modIceCream.Flavours)
+                                {
+                                    if (x.Type.ToLower() == Chosen.ToLower())
+                                    {
+                                        x.Quantity += 1;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Flavour newFlavour = new Flavour(Chosen, premium, 1);
+                                        modIceCream.Flavours.Add(newFlavour);
+                                        break;
+                                    }
+                                }
+                                return modIceCream;
                             }
-                        }
-                        foreach (Flavour x in modIceCream.Flavours)
-                        {
-                            if (x.Type.ToLower() == Chosen.ToLower())
+                            catch(FormatException)
                             {
-                                x.Quantity += 1;
-                                break;
-                            }
-                            else
-                            {
-                                Flavour newFlavour = new Flavour(Chosen, premium, 1);
-                                modIceCream.Flavours.Add(newFlavour);
-                                break;
+                                Console.WriteLine("Give a valid flavour");
                             }
                         }
                         return modIceCream;
+
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    ///
                     default:
                         Console.WriteLine("Give a valid option.");
                         break;
