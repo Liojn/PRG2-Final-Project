@@ -1,6 +1,7 @@
 ﻿using PRG2_Final_Project;
 using System;
 using System.Globalization;
+using System.Security;
 
 
 //==========================================================
@@ -475,13 +476,17 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
 
 
     Console.WriteLine("Flavour Available:");
-    foreach (string flav in FlavoursFile.Keys)
+    foreach (KeyValuePair<string,int> flav in FlavoursFile)
     {
-        Console.Write("{0,-15}", flav);
+        string y = "";
+        y += flav.Key;
+        if (flav.Value != 0!)
+        {
+            y += "(Premium)";
+        }
+        Console.Write("{0,-20}", y);
     }
 
-    Console.Write("Enter the number of ice cream scoops (Max 3): ");
-    int noOfScoops = Convert.ToInt32(Console.ReadLine());
     Console.WriteLine();
     for (int i = 0; i < noOfScoops; i++)
     {
