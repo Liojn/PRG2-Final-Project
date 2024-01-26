@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Security;
+using System.Security.Cryptography.X509Certificates;
 
 
 //==========================================================
@@ -42,7 +43,7 @@ void InitaliseFlavour(Dictionary<string,int>FlavoursFile)
     }
 }
 
-void InitaliseToppings(List<string> Toppings)
+void InitaliseToppings(List<string> ToppingsFile)
 {
     string line;
     int count = 0;
@@ -63,8 +64,26 @@ void InitaliseToppings(List<string> Toppings)
     };
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
 
+void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
+{
+    string FilePath = "customers.csv";
+    string dataline = "";
+    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard";
+    using StreamWriter writer = new StreamWriter(FilePath,false);
+    {
+        writer.WriteLine(Header);
+        foreach (Customer customer in customerDict.Values)
+        {
+            dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
+            writer.WriteLine(dataline);
+            dataline = "";
+        }
+    }
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to order.csv file
 
 
 
@@ -318,13 +337,13 @@ void ListCurrentOrders(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
     OrderPrint(GoldQueue);
     if (GoldQueue.Count == 0)
     {
-        Console.WriteLine("No orders yets.");
+        Console.WriteLine("No orders yet.");
     }
     Console.WriteLine("==========Regular Queue Orders==========");
     OrderPrint(RegularQueue);
     if (RegularQueue.Count == 0)
     {
-        Console.WriteLine("No orders yets.");
+        Console.WriteLine("No orders yet.");
     }
 
 }
@@ -383,7 +402,10 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 
     customerDict.Add(memberId, newCustomer);
 
+    UpdateCustomerCSV(customerDict);
     Console.WriteLine("Registration successful!");
+
+
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
