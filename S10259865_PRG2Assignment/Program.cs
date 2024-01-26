@@ -401,7 +401,6 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order>orde
     {
         id = orders[orders.Count - 1].Id + 1;
     }
-
     foreach (var kvp in customerDict)
     {
         if (kvp.Value.Name == name)
@@ -409,73 +408,101 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order>orde
             kvp.Value.MakeOrder();
             kvp.Value.CurrentOrder.Id = id;
             currentOrder = kvp.Value.CurrentOrder;
+
+            currentOrder = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+            orders.Add(currentOrder);
+            kvp.Value.orderHistory.Add(currentOrder);
+
+            while (true)
+            {
+                Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
+                string addIceCreamChoice = Console.ReadLine();
+
+                if (addIceCreamChoice.ToUpper() == "Y")
+                {
+                    kvp.Value.MakeOrder();
+                    kvp.Value.CurrentOrder.Id = id;
+                    currentOrder = kvp.Value.CurrentOrder;
+
+                    currentOrder = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+                    orders.Add(currentOrder);
+                    kvp.Value.orderHistory.Add(currentOrder);
+
+                    if (kvp.Value.Rewards.Tier == "Gold")
+                    {
+                        GoldQueue.Enqueue(currentOrder);
+                    }
+                    else
+                    {
+                        RegularQueue.Enqueue(currentOrder);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (kvp.Value.Rewards.Tier == "Gold")
+            {
+                GoldQueue.Enqueue(currentOrder);
+            }
+            else
+            {
+                RegularQueue.Enqueue(currentOrder);
+            }
+
+            Console.WriteLine("Order has been placed successfully!\n");
+
             break;
         }
     }
-
-
-    currentOrder = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-   
-    
-   /* string[] orderLine = File.ReadAllLines("orders.csv");
-    for (int i = 1; i < orderLine.Length; i++)
-    {
-        string[] orderData = orderLine[i].Split(",");
-        int orderId = Convert.ToInt32(orderData[0]);
-        int memberId = Convert.ToInt32(orderData[1]);
-
-        if (currentCustomer.MemberId == memberId)
-        {
-            
-            Order currentIceCreamOrder = IceCreamOptionChoice(flavourList, toppingList);
-            Order orderDetails = currentCustomer.MakeOrder();
-            Order order = new Order(orderId, orderDetails.TimeReceived);
-
-            Console.WriteLine(currentCustomer);
-
-            Console.Write("Would you like to add another ice cream to the order [Y/N]: ");
-            string addOrderChoice = Console.ReadLine();
-
-            while (addOrderChoice != "N")
-            {
-                Order newCurrentIceCreamOrder = IceCreamOptionChoice(flavourList, toppingList);
-                Order newOrderDetails = currentCustomer.MakeOrder();
-                Order newOrder = new Order(orderId, orderDetails.TimeReceived);
-
-                Console.Write("Would you like to add another ice cream to the order [Y/N]: ");
-                addOrderChoice = Console.ReadLine();
-            }
-
-        }
-
-    }*/
 }
+
 static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<string> ToppingsFile, Order currentOrder)
 {
-    string[] options = { "Ordinary", "Pandan", "Red Velvet", "Charcoal" };
-    Console.WriteLine("Possible Options: ");
-    foreach (string s in options)
+    List<Flavour> newFlavoursList = new List<Flavour>();
+    List<Topping> newToppingList = new List<Topping>();
+    bool isDipped = false;
+    string wFlavour = "";
+
+    string[] option = { "Cup", "Cone", "Waffle" };
+    Console.WriteLine("Available Ice Cream Options: ");
+    foreach (string o in option)
     {
-        Console.Write("| {0,-15} |", s);
+        Console.Write("| {0, -15} |", o);
     }
     Console.WriteLine();
     Console.Write("Enter your ice cream option: ");
     string iceCreamOption = Console.ReadLine();
+
     if (iceCreamOption.ToLower() == "waffle")
     {
+        string[] waffleFlavourOptions = { "Ordinary", "Pandan", "Red Velvet", "Charcoal" };
+        Console.WriteLine("Possible Options: ");
+        foreach (string w in waffleFlavourOptions)
+        {
+            Console.Write("| {0,-15} |", w);
+        }
+        Console.WriteLine();
 
+        Console.Write("Enter the waffle flavour: ");
+        wFlavour = Console.ReadLine();
     }
     else if (iceCreamOption.ToLower() == "cone")
     {
-
+        Console.Write("Do you want to upgrade to a chocolate-dipped cone? [Y/N]: ");
+        string chocoDippedChoice = Console.ReadLine();
+        if (chocoDippedChoice.ToLower() == "Y")
+        {
+            isDipped = true;
+        }
     }
-
 
     Console.Write("Enter the number of ice cream scoops (Max 3): ");
     int noOfScoops = Convert.ToInt32(Console.ReadLine());
 
-
-    Console.WriteLine("Flavour Available:");
+    Console.WriteLine("Flavours Available:");
     foreach (KeyValuePair<string,int> flav in FlavoursFile)
     {
         string y = "";
@@ -500,50 +527,45 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
                 isPremium = true;
             }
         }
-        
         Flavour flavour = new Flavour(flavourType, isPremium, 1);
+        newFlavoursList.Add(flavour);
 
-       /* flavourList.Add(flavour);*/
     }
 
-   /* Console.Write("Enter the number of toppings to add: ");
+    string[] toppingOptions = { "Sprinkles", "Mochi", "Sago", "Oreos" };
+    Console.WriteLine("Toppings Available: ");
+    foreach (string t in toppingOptions)
+    {
+        Console.Write("| {0, -15} |", t);
+    }
+    Console.WriteLine();
+    
+    Console.Write("Enter the number of toppings to add: ");
     int noOfToppings = Convert.ToInt32(Console.ReadLine());
     for (int i = 0; i < noOfToppings; i++)
     {
         Console.Write("Enter topping type: ");
         string toppingType = Console.ReadLine();
-
         Topping topping = new Topping(toppingType);
-        toppingList.Add(topping);
+        newToppingList.Add(topping);
     }
-
-    Order order = new Order();
 
     if (iceCreamOption == "Cup")
     {
-        IceCream iceCreamOrder = new Cup(iceCreamOption, noOfScoops, flavourList, toppingList);
-        order.AddIceCream(iceCreamOrder);
+        IceCream iceCreamOrder = new Cup(iceCreamOption, noOfScoops, newFlavoursList, newToppingList);
+        currentOrder.AddIceCream(iceCreamOrder);
     }
     else if (iceCreamOption == "Cone")
     {
-        Console.Write("Do you want to upgrade to Chocolate-dipped cone? [Y/N]: ");
-        string choice = Console.ReadLine();
-        bool isDipped = false;
-        if (choice == "Y")
-        {
-            isDipped = true;
-        }
-        IceCream iceCreamOrder = new Cone(iceCreamOption, noOfScoops, flavourList, toppingList, isDipped);
-        order.AddIceCream(iceCreamOrder);
+        IceCream iceCreamOrder = new Cone(iceCreamOption, noOfScoops, newFlavoursList, newToppingList, isDipped);
+        currentOrder.AddIceCream(iceCreamOrder);
     }
     else if (iceCreamOption == "Waffle")
     {
-        Console.Write("Enter Waffle flavour: ");
-        string wFlavour = Console.ReadLine();
+        IceCream iceCreamOrder = new Waffle(iceCreamOption, noOfScoops, newFlavoursList, newToppingList, wFlavour);
+        currentOrder.AddIceCream(iceCreamOrder);
+    }
 
-        IceCream iceCreamOrder = new Waffle(iceCreamOption, noOfScoops, flavourList, toppingList, wFlavour);
-        order.AddIceCream(iceCreamOrder);
-    }*/
     return (currentOrder);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
