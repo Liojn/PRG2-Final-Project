@@ -56,7 +56,7 @@ namespace PRG2_Final_Project
             return FlavoursFile;
         }
 
-        private string[] InitaliseToppings()
+        private List<string> InitaliseToppings()
         {
             List<string> ToppingsFile = new List<string>();
             string line;
@@ -397,7 +397,7 @@ namespace PRG2_Final_Project
 
         private IceCream ModifyToppings(IceCream modIceCream)
         {
-            string[] toppings = InitaliseToppings();
+            List<string> toppings = InitaliseToppings();
             int option = -1;
             while (true)
             {
@@ -490,7 +490,8 @@ namespace PRG2_Final_Project
                             Console.WriteLine("Give a valid choice");
                             break;
                     }
-                catch(FormatException)
+                }
+                catch (FormatException)
                 {
                     Console.WriteLine("Give a valid option");
                 }

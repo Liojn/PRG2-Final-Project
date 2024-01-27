@@ -3,6 +3,7 @@ using System;
 using System.Globalization;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Transactions;
 
 
 //==========================================================
@@ -387,25 +388,39 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      Registering a new customer (Feature 3)
 void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 {
-    Console.Write("Enter customer's name: ");
-    string name = Console.ReadLine();
-    Console.Write("Enter Membership ID number: ");
-    int memberId = Convert.ToInt32(Console.ReadLine());
-    Console.Write("Enter Customer's Date-Of-Birth (dd/MM/yyyy): ");
-    DateTime dob = Convert.ToDateTime(Console.ReadLine());
+    while (true)
+    {
+        try
+        {
+            Console.Write("Enter customer's name: ");
+            string name = Console.ReadLine();
+            if (string.IsNullOrEmpty(name))
+            {
+                Console.WriteLine("Enter a valid name");
+                continue;
+            }
+            Console.Write("Enter Membership ID number: ");
+            int memberId = Convert.ToInt32(Console.ReadLine());
+            Console.Write("Enter Customer's Date-Of-Birth (dd/MM/yyyy): ");
+            string DateOfBirth = Console.ReadLine();
+            DateTime dob = DateTime.ParseExact(DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            Customer newCustomer = new Customer(name, memberId, dob);
 
-    Customer newCustomer = new Customer(name, memberId, dob);
+            PointCard newPointCard = new PointCard(0, 0);
+            newPointCard.Tier = "Ordinary";
+            newCustomer.Rewards = newPointCard;
 
-    PointCard newPointCard = new PointCard(0, 0);
-    newPointCard.Tier = "Ordinary";
-    newCustomer.Rewards = newPointCard;
+            customerDict.Add(memberId, newCustomer);
 
-    customerDict.Add(memberId, newCustomer);
+            UpdateCustomerCSV(customerDict);
+            Console.WriteLine("Registration successful!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
 
-    UpdateCustomerCSV(customerDict);
-    Console.WriteLine("Registration successful!");
-
-
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -711,42 +726,45 @@ InitaliseToppings(ToppingsFile);
 int option = -1;
 while (option != 0)
 {
-    Menu();
-    Console.Write("Enter your option: ");
-    try
+    while (true)
     {
-        option = Convert.ToInt32(Console.ReadLine());
-        Console.WriteLine();
-        switch (option)
+        Menu();
+        Console.Write("Enter your option: ");
+        try
         {
-            case 1:
-                ListCustomer(customerDict);
-                break;
-            case 2:
-                ListCurrentOrders(GoldQueue, RegularQueue);
-                break;
-            case 3:
-                RegisterNewCustomer(customerDict);
-                break;
-            case 4:
-                CreateCustomerOrder(customerDict,orders,FlavoursFile,ToppingsFile);
-                break;
-            case 5:
-                OrderDetailsCustomer(customerDict);
-                break;
-            case 6:
-                Customer wantedCustomer = printCustomers(customerDict);
-                int index = printSelected(wantedCustomer);
-                break;
-            default:
-                Console.WriteLine("Give a valid option");
-                 break;
+            option = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine();
+            switch (option)
+            {
+                case 1:
+                    ListCustomer(customerDict);
+                    break;
+                case 2:
+                    ListCurrentOrders(GoldQueue, RegularQueue);
+                    break;
+                case 3:
+                    RegisterNewCustomer(customerDict);
+                    break;
+                case 4:
+                    CreateCustomerOrder(customerDict, orders, FlavoursFile, ToppingsFile);
+                    break;
+                case 5:
+                    OrderDetailsCustomer(customerDict);
+                    break;
+                case 6:
+                    Customer wantedCustomer = printCustomers(customerDict);
+                    int index = printSelected(wantedCustomer);
+                    break;
+                default:
+                    Console.WriteLine("Give a valid option");
+                    break;
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An unexpected error occurred: {0)", ex.Message);
+        };
     }
-    catch(Exception ex) 
-    {
-        Console.WriteLine("An unexpected error occurred: {0)", ex.Message);
-    };
 }
 
 
