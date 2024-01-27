@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assignment_IceCream_Shop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -33,7 +34,7 @@ namespace PRG2_Final_Project
 
 
 
-        private Dictionary<string,int> InitaliseFlavour()
+        private Dictionary<string, int> InitaliseFlavour()
         {
             Dictionary<string, int> FlavoursFile = new Dictionary<string, int>();
             string line;
@@ -81,7 +82,7 @@ namespace PRG2_Final_Project
 
         private IceCream ModifyOption(IceCream modIceCream)
         {
-            Console.WriteLine("Current Option: {}",modIceCream.GetType());
+            Console.WriteLine("Current Option: {}", modIceCream.GetType());
             Console.WriteLine("[1]Switch to Cup.");
             Console.WriteLine("[2]Switch to Cone.");
             Console.WriteLine("[3]Switch to Waffle.");
@@ -119,7 +120,7 @@ namespace PRG2_Final_Project
             }
 
             return modIceCream;
-        
+
         }
 
         private IceCream ModifyScoops(IceCream modIceCream)
@@ -373,9 +374,9 @@ namespace PRG2_Final_Project
 
                                             return modIceCream;
                                         }
-                                        catch(FormatException)
+                                        catch (FormatException)
                                         {
-                                            Console.WriteLine("Give a valid flavour to change");  
+                                            Console.WriteLine("Give a valid flavour to change");
                                         }
                                     }
                                 }
@@ -387,7 +388,7 @@ namespace PRG2_Final_Project
                     }
                     return modIceCream;
                 }
-                catch(FormatException)
+                catch (FormatException)
                 {
                     Console.WriteLine("Enter a valid flavour");
                 }
@@ -585,13 +586,13 @@ namespace PRG2_Final_Project
         }
 
 
-        
+
 
 
         public void ModifyIceCream(int i)
         {
 
-            string[] PossibleChoices = { "Option", "Scoops", "Flavors","Toppings" };
+            string[] PossibleChoices = { "Option", "Scoops", "Flavors", "Toppings" };
             IceCream modIceCream = iceCreamList[i - 1];
             if (iceCreamList.Count <= 0)
             {
@@ -654,8 +655,8 @@ namespace PRG2_Final_Project
             }
         }
 
-        
-    
+
+
 
         public void AddIceCream(IceCream iceCream)
         {
@@ -688,7 +689,7 @@ namespace PRG2_Final_Project
             string icecreams = "";
             foreach (IceCream ice in iceCreamList)
             {
-                icecreams += ice.ToString() +"\n";
+                icecreams += ice.ToString() + "\n";
             }
 
             return ("Id: " + Id + "\tTime Received: " + TimeReceived + "\tTime Fulfilled: " + TimeFulfilled + "\nIce Creams: " + icecreams);

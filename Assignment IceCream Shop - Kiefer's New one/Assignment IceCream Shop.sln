@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PRG2 Final Project", "PRG2 Final Project.csproj", "{6B350160-FECF-4271-A039-1B8BF391C7E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Assignment IceCream Shop", "Assignment IceCream Shop.csproj", "{308D78B4-9D5A-4474-AF8C-BA26F1D6BD99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6B350160-FECF-4271-A039-1B8BF391C7E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B350160-FECF-4271-A039-1B8BF391C7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B350160-FECF-4271-A039-1B8BF391C7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B350160-FECF-4271-A039-1B8BF391C7E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{308D78B4-9D5A-4474-AF8C-BA26F1D6BD99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{308D78B4-9D5A-4474-AF8C-BA26F1D6BD99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{308D78B4-9D5A-4474-AF8C-BA26F1D6BD99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{308D78B4-9D5A-4474-AF8C-BA26F1D6BD99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9EC7FA21-AF2C-45BD-8F79-78F2FBEB43EA}
+		SolutionGuid = {6E10B5BD-4B7B-4834-8416-9F2F88E9A2F5}
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assignment_IceCream_Shop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace PRG2_Final_Project
         public Customer(string n, int m, DateTime d)
         {
             CurrentOrder = null;
-            Rewards = new PointCard(0,0);
+            Rewards = new PointCard(0, 0);
             Name = n;
             MemberId = m;
             Dob = d;
@@ -59,7 +60,7 @@ namespace PRG2_Final_Project
             {
                 orders += o.ToString + "\n";
             }
-            return ("Name: " + Name + "\tMember ID: " + MemberId + "\tDate of Birth: " + dob.ToString("MM/dd/yyyy") + "\nRewards: " + Rewards + "\nCurrent Order: " + CurrentOrder + "\nOrder History: " + orders );
+            return ("Name: " + Name + "\tMember ID: " + MemberId + "\tDate of Birth: " + dob.ToString("MM/dd/yyyy") + "\nRewards: " + Rewards + "\nCurrent Order: " + CurrentOrder + "\nOrder History: " + orders);
 
 
         }

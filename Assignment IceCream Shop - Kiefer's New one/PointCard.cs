@@ -18,7 +18,7 @@ namespace PRG2_Final_Project
 
         public PointCard() { }
 
-        public PointCard(int p,int pc)
+        public PointCard(int p, int pc)
         {
             Points = p;
             PunchCards = pc;
@@ -53,7 +53,7 @@ namespace PRG2_Final_Project
                     Points -= reedemPoint;
                 }
             }
-            
+
         }
 
         public void Punch()
@@ -64,13 +64,13 @@ namespace PRG2_Final_Project
             }
             else
             {
-                PunchCards = 0; 
+                PunchCards = 0;
             }
         }
 
         public override string ToString()
         {
-            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier); 
+            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier);
         }
 
 

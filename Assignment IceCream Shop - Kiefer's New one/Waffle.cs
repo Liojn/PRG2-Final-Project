@@ -1,28 +1,27 @@
-﻿using PRG2_Final_Project;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
+using Assignment_IceCream_Shop;
 
 namespace PRG2_Final_Project
 {
-
-    class Cone : IceCream
+    class Waffle : IceCream
     {
-        private bool dipped;
+        private string waffleFlavour;
 
-        public bool Dipped
+        public string WaffleFlavour
         {
-            get { return dipped; }
-            set { dipped = value; }
+            get { return waffleFlavour; }
+            set { waffleFlavour = value; }
         }
 
-        public Cone() { }
-        public Cone(string o, int s, List<Flavour> f, List<Topping> t, bool d) : base(o, s, f, t)
+        public Waffle() { }
+
+        public Waffle(string o, int s, List<Flavour> f, List<Topping> t, string w) : base(o, s, f, t)
         {
-            Dipped = d;
+            WaffleFlavour = w;
         }
 
         public override double CalculatePrice()
@@ -30,15 +29,15 @@ namespace PRG2_Final_Project
             double price = 0;
             if (Scoops == 1)
             {
-                price = 4;
+                price = 7;
             }
             else if (Scoops == 2)
             {
-                price = 5.5;
+                price = 8.5;
             }
             else if (Scoops == 3)
             {
-                price = 6.50;
+                price = 9.50;
             }
 
             price += Toppings.Count * 1;
@@ -51,9 +50,9 @@ namespace PRG2_Final_Project
                 }
             }
 
-            if (Dipped == true)
+            if (WaffleFlavour == "Red Velvet" || WaffleFlavour == "charcoal" || WaffleFlavour == "pandan")
             {
-                price += 2;
+                price += 3;
             }
 
             return price;
@@ -62,9 +61,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return base.ToString() + "\tDipped: " + Dipped;
+            return base.ToString() + "\tWaffle Flavour: " + WaffleFlavour;
         }
-
-
     }
 }

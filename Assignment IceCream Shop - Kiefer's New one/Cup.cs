@@ -1,4 +1,5 @@
-﻿using PRG2_Final_Project;
+﻿using Assignment_IceCream_Shop;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,6 @@ namespace PRG2_Final_Project
             {
                 price = 6.50;
             }
-
             price += Toppings.Count * 1;
 
             for (int i = 0; i < Flavours.Count; i++)

@@ -1,4 +1,5 @@
-﻿using PRG2_Final_Project;
+﻿using Assignment_IceCream_Shop;
+using PRG2_Final_Project;
 using System;
 using System.Globalization;
 using System.Security;
@@ -23,7 +24,7 @@ List<string> ToppingsFile = new List<string>();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void InitaliseFlavour(Dictionary<string,int>FlavoursFile)
+void InitaliseFlavour(Dictionary<string, int> FlavoursFile)
 {
     string line;
     int count = 0;
@@ -50,7 +51,7 @@ void InitaliseToppings(List<string> ToppingsFile)
     int count = 0;
     using StreamReader sr = new StreamReader("toppings.csv");
     {
-        while((line = sr.ReadLine()) != null)
+        while ((line = sr.ReadLine()) != null)
         {
             if (count == 0)
             {
@@ -72,7 +73,7 @@ void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
     string FilePath = "customers.csv";
     string dataline = "";
     string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard";
-    using StreamWriter writer = new StreamWriter(FilePath,false);
+    using StreamWriter writer = new StreamWriter(FilePath, false);
     {
         writer.WriteLine(Header);
         foreach (Customer customer in customerDict.Values)
@@ -89,7 +90,7 @@ void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reading the customer.csv file
-void InitialiseCustomers(Dictionary<int,Customer> customerDict,List<Order>orders)
+void InitialiseCustomers(Dictionary<int, Customer> customerDict, List<Order> orders)
 {
     string line;
     int count = 0;
@@ -156,7 +157,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                 string Option = data[4];
                 int Scoops = Convert.ToInt32(data[5]);
                 DateTime TimeRecevied = DateTime.ParseExact(data[2], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
-                DateTime TimeFulfilled  = DateTime.ParseExact(data[3], "dd/MM/yyyy HH:mm",CultureInfo.InvariantCulture);
+                DateTime TimeFulfilled = DateTime.ParseExact(data[3], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
                 bool premium = false;
                 string waffleFlavour = data[7];
                 if (Option == "Cone")
@@ -324,7 +325,7 @@ void OrderPrint(Queue<Order> queue)
             s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping;
         }
 
-        Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}",o.Id, o.TimeReceived, o.TimeFulfilled, s);
+        Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, s);
         Console.WriteLine();
     }
 }
@@ -360,26 +361,26 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
     }
     while (true)
     {
-            Console.Write("Select a customer: ");
-            string option = Console.ReadLine().ToLower();
-            Customer wantedCustomer = new Customer();
-            bool found = false;
-            foreach (KeyValuePair<int, Customer> kvp in customerDict)
+        Console.Write("Select a customer: ");
+        string option = Console.ReadLine().ToLower();
+        Customer wantedCustomer = new Customer();
+        bool found = false;
+        foreach (KeyValuePair<int, Customer> kvp in customerDict)
+        {
+            if (kvp.Value.Name.ToLower() == option)
             {
-                if (kvp.Value.Name.ToLower() == option)
-                {
-                    wantedCustomer = kvp.Value;
-                    found = true;
-                }
+                wantedCustomer = kvp.Value;
+                found = true;
             }
-            if (found)
-            {
-                return wantedCustomer;
-            }
-            else
-            {
-                Console.WriteLine("Customer not found. Try again");
-            }
+        }
+        if (found)
+        {
+            return wantedCustomer;
+        }
+        else
+        {
+            Console.WriteLine("Customer not found. Try again");
+        }
     }
 }
 
@@ -401,6 +402,11 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
             }
             Console.Write("Enter Membership ID number: ");
             int memberId = Convert.ToInt32(Console.ReadLine());
+            if (customerDict.ContainsKey(memberId))
+            {
+                Console.WriteLine("Membership ID already exists. Please enter a unique ID.");
+                continue;
+            }
             Console.Write("Enter Customer's Date-Of-Birth (dd/MM/yyyy): ");
             string DateOfBirth = Console.ReadLine();
             DateTime dob = DateTime.ParseExact(DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
@@ -414,6 +420,11 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 
             UpdateCustomerCSV(customerDict);
             Console.WriteLine("Registration successful!");
+            return;
+        }
+        catch(FormatException)
+        {
+            Console.WriteLine("Invalid Format.");
         }
         catch (Exception ex)
         {
@@ -425,7 +436,7 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Creating a customer's order (Feature 4)
-void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order>orders,Dictionary<string,int>FlavoursFile,List<string>ToppingsFile)
+void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> orders, Dictionary<string, int> FlavoursFile, List<string> ToppingsFile)
 {
     Console.WriteLine("CREATING CUSTOMER ORDER: \n");
     ListCustomer(customerDict);
@@ -496,7 +507,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order>orde
     }
 }
 
-static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<string> ToppingsFile, Order currentOrder)
+static Order IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<string> ToppingsFile, Order currentOrder)
 {
     List<Flavour> newFlavoursList = new List<Flavour>();
     List<Topping> newToppingList = new List<Topping>();
@@ -540,7 +551,7 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
     int noOfScoops = Convert.ToInt32(Console.ReadLine());
 
     Console.WriteLine("Flavours Available:");
-    foreach (KeyValuePair<string,int> flav in FlavoursFile)
+    foreach (KeyValuePair<string, int> flav in FlavoursFile)
     {
         string y = "";
         y += flav.Key;
@@ -557,7 +568,7 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
         Console.Write("Enter the ice cream flavour: ");
         string flavourType = Console.ReadLine();
         bool isPremium = false;
-        foreach (KeyValuePair<string,int> kvp in FlavoursFile)
+        foreach (KeyValuePair<string, int> kvp in FlavoursFile)
         {
             if (flavourType.ToLower() == kvp.Key.ToLower() && kvp.Value != 0)
             {
@@ -576,7 +587,7 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
         Console.Write("| {0, -15} |", t);
     }
     Console.WriteLine();
-    
+
     Console.Write("Enter the number of toppings to add: ");
     int noOfToppings = Convert.ToInt32(Console.ReadLine());
     for (int i = 0; i < noOfToppings; i++)
@@ -610,7 +621,7 @@ static Order IceCreamOptionChoice(Dictionary<string,int>FlavoursFile, List<strin
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
 void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
-  
+
     Customer wantedCustomer = printCustomers(customerDict);
     if (wantedCustomer.orderHistory.Count == 0)
     {
@@ -734,7 +745,7 @@ int printSelected(Customer wantedCustomer)
     return 1;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-InitialiseCustomers(customerDict,orders);
+InitialiseCustomers(customerDict, orders);
 InitaliseOrder(customerDict);
 InitaliseFlavour(FlavoursFile);
 InitaliseToppings(ToppingsFile);
