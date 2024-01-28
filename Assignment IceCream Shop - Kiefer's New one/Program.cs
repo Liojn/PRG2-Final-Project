@@ -563,25 +563,26 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                 Console.Write("| {0,-15} |", w);
             }
             Console.WriteLine();
+            bool WExists = false;
             while (true)
             {
-                bool WExists = false;
                 Console.Write("Enter the waffle flavour: ");
                 wFlavour = Console.ReadLine();
-
                 foreach (string s in waffleFlavourOptions)
                 {
                     if (s.ToLower() == wFlavour.ToLower())
                     {
                         WExists = true;
-                        wFlavour = s; break;
-
+                        wFlavour = s;break;
                     }
                 }
                 if (!WExists)
                 {
-                    Console.WriteLine("Gve a valid Waffle Flavour");
-                   
+                    Console.WriteLine("Give a valid Waffle Flavour");
+                }
+                else
+                {
+                    break;
                 }
             }
             break;
