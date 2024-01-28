@@ -451,10 +451,32 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Creating a customer's order (Feature 4)
 void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> orders, Dictionary<string, int> FlavoursFile, List<string> ToppingsFile)
 {
+    string name = "";
     Console.WriteLine("CREATING CUSTOMER ORDER: \n");
     ListCustomer(customerDict);
-    Console.Write("\nEnter customer's name: ");
-    string name = Console.ReadLine();
+    while (true)
+    {
+        bool NameExists = false;
+        Console.Write("\nEnter customer's name: ");
+        name = Console.ReadLine();
+        foreach (Customer cus in customerDict.Values)
+        {
+            if (name.ToLower() == cus.Name.ToLower())
+            {
+                name = cus.Name;
+                NameExists = true;
+            }
+        }
+        if (!NameExists)
+        {
+            Console.WriteLine("Enter a valid name.");
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
     int id = 0;
     Order currentOrder = new Order();
 
@@ -530,6 +552,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         Console.Write("Enter your ice cream option: ");
         iceCreamOption = Console.ReadLine();
 
+
         if (iceCreamOption.ToLower() == "waffle")
         {
             iceCreamOption = "Waffle";
@@ -566,8 +589,25 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             Console.WriteLine();
         }
     }
-    Console.Write("Enter the number of ice cream scoops (Max 3): ");
-    int noOfScoops = Convert.ToInt32(Console.ReadLine());
+    int noOfScoops = -1;
+    while (true)
+    {
+        Console.Write("Enter the number of ice cream scoops (Min 1, Max 3): ");
+        try
+        {
+            noOfScoops = Convert.ToInt32(Console.ReadLine());
+            if (noOfScoops <= 0 || noOfScoops > 3)
+            {
+                Console.WriteLine("Enter a valid number of scoops.");
+                continue;
+            }
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Enter a valid number.");
+        }
+    }
 
     Console.WriteLine("Flavours Available:");
     foreach (KeyValuePair<string, int> flav in FlavoursFile)
@@ -633,31 +673,64 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
 
     List<string> toppingOptions = ToppingsFile;
     Console.WriteLine();
-    Console.Write("Enter the number of toppings to add(max 4): ");
-    int noOfToppings = Convert.ToInt32(Console.ReadLine());
-    if (noOfToppings > 0)
+    int noOfToppings = -1;
+    while (true)
     {
-        Console.WriteLine("Toppings Available: ");
-        foreach (string t in toppingOptions)
+        Console.Write("Enter the number of toppings to add (Min 0, Max 4): ");
+        try
         {
-            Console.Write("| {0, -15} |", t);
+            noOfToppings = Convert.ToInt32(Console.ReadLine());
+            if (noOfToppings < 0 || noOfToppings > 4)
+            {
+                Console.WriteLine("Enter a valid number of toppings.");
+                continue;
+            }
+            Console.WriteLine("Toppings Available: ");
+            foreach (string t in toppingOptions)
+            {
+                Console.Write("| {0, -15} |", t);
+            }
+            Console.WriteLine();
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Enter a valid number.");
         }
     }
-    Console.WriteLine();
-
     for (int i = 0; i < noOfToppings; i++)
     {
         while (true)
         {
+            bool ToppingInList = false;
             bool exists = false;
             Console.Write("Enter topping type: ");
             string toppingType = Console.ReadLine();
+            foreach (string t in toppingOptions)
+            {
+                if (t.ToLower() == toppingType.ToLower())
+                {
+                    ToppingInList = true;
+                }
+            }
+            if (!ToppingInList)
+            {
+                Console.WriteLine("Enter a valid topping");
+                continue;
+            }
             foreach (Topping t in newToppingList)
             {
                 if (toppingType.ToLower() == t.Type.ToLower())
                 {
                     Console.WriteLine("Topping already exists.");
                     exists = true;
+                }
+            }
+            foreach (string t in toppingOptions)
+            {
+                if (t.ToLower() == toppingType.ToLower())
+                {
+                    toppingType = t;
                 }
             }
             Topping topping = new Topping(toppingType);
@@ -851,9 +924,19 @@ while (option != 0)
     while (true)
     {
         Menu();
-        Console.Write("Enter your option: ");
-
-        option = Convert.ToInt32(Console.ReadLine());
+        while (true)
+        {
+            try
+            {
+                Console.Write("Enter your option: ");
+                option = Convert.ToInt32(Console.ReadLine());
+                break;
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Enter a valid number");
+            }
+        }
         Console.WriteLine();
         switch (option)
         {
