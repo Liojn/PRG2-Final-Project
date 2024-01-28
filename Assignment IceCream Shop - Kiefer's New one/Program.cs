@@ -1,6 +1,7 @@
 ﻿using Assignment_IceCream_Shop;
 using PRG2_Final_Project;
 using System;
+using System.Data;
 using System.Globalization;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -556,10 +557,15 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         if (iceCreamOption.ToLower() == "waffle")
         {
             iceCreamOption = "Waffle";
-            string[] waffleFlavourOptions = { "Ordinary", "Pandan", "Red Velvet", "Charcoal" };
+            string[] waffleFlavourOptions = { "Original", "Pandan", "Red Velvet", "Charcoal" };
             Console.WriteLine("Possible Options: ");
             foreach (string w in waffleFlavourOptions)
             {
+                if (w != "Original")
+                {
+                    Console.Write("| {0,-15} |", w + "(+$3)");
+                    continue;
+                }
                 Console.Write("| {0,-15} |", w);
             }
             Console.WriteLine();
@@ -590,7 +596,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         else if (iceCreamOption.ToLower() == "cone")
         {
             iceCreamOption = "Cone";
-            Console.Write("Do you want to upgrade to a chocolate-dipped cone? [Y/N]: ");
+            Console.Write("Do you want to upgrade to a chocolate-dipped cone(+$2)? [Y/N]: ");
             string chocoDippedChoice = Console.ReadLine();
             if (chocoDippedChoice.ToLower() == "Y")
             {
@@ -703,6 +709,10 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             {
                 Console.WriteLine("Enter a valid number of toppings.");
                 continue;
+            }
+            if (noOfToppings == 0)
+            {
+                break;
             }
             Console.WriteLine("Toppings Available: ");
             foreach (string t in toppingOptions)
@@ -850,7 +860,24 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Getting index for option 6, modify ice cream
 int printSelected(Customer wantedCustomer)
 {
-    List<IceCream> iceList = wantedCustomer.CurrentOrder.iceCreamList;
+    List<IceCream> iceList = new List<IceCream>();
+    try
+    {
+        if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)// Check all 3 in case any of them is null.
+        {
+            iceList = wantedCustomer.CurrentOrder.iceCreamList;
+        }
+        else
+        {
+            Console.WriteLine("No Current order.");
+            return -1;
+        }
+    }
+    catch(NullReferenceException)
+    {
+        Console.WriteLine("No Current Order.");
+        return -1;
+    }
     if (iceList.Count == 0)
     {
         if (wantedCustomer.orderHistory.Count == 0)
@@ -921,8 +948,20 @@ int printSelected(Customer wantedCustomer)
         Console.WriteLine();
         count++;
     }
-    Console.Write("Which Order to Modify?: ");
-    int index = Convert.ToInt32(Console.ReadLine());
+    int index = -1;
+    while (true)
+    {
+        try
+        {
+            Console.Write("Which Order to Modify?: ");
+            index = Convert.ToInt32(Console.ReadLine());
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Enter a valid order;");
+        }
+    }
     return index;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -953,7 +992,7 @@ while (option != 0)
             }
             catch (FormatException)
             {
-                Console.WriteLine("Enter a valid number");
+                Console.WriteLine("Enter a valid number.\n");
             }
         }
         Console.WriteLine();
@@ -985,7 +1024,7 @@ while (option != 0)
 
                 break;
             default:
-                Console.WriteLine("Give a valid option");
+                Console.WriteLine("Give a valid option.\n");
                 break;
         
         }

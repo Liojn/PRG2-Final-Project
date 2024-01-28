@@ -83,16 +83,17 @@ namespace PRG2_Final_Project
         private IceCream ModifyOption(IceCream modIceCream)
         {
             string[] waf = { "Original", "Red velvet", "Charcoal", "Pandan" };
-            Console.WriteLine("Current Option: {0}", modIceCream.Option);
-            Console.WriteLine("[1]Switch to Cup.");
-            Console.WriteLine("[2]Switch to Cone.");
-            Console.WriteLine("[3]Switch to Waffle.");
-            Console.WriteLine("[0]Exit.");
-            Console.Write("Enter your option: ");
+           
             while (true)
             {
                 try
                 {
+                    Console.WriteLine("Current Option: {0}", modIceCream.Option);
+                    Console.WriteLine("[1]Switch to Cup.");
+                    Console.WriteLine("[2]Switch to Cone.");
+                    Console.WriteLine("[3]Switch to Waffle.");
+                    Console.WriteLine("[0]Exit.");
+                    Console.Write("Enter your option: ");
                     int swap = Convert.ToInt32(Console.ReadLine());
                     switch (swap)
                     {
@@ -104,12 +105,25 @@ namespace PRG2_Final_Project
                             return CupIceCream;
                         case 2 when modIceCream is not Cone:
                             bool dipped = false;
-                            Console.Write("Dipped? [Y/N]");
-                            string dip = Console.ReadLine();
-                            if (dip.ToLower() == "y")
+                            while (true)
                             {
-                                dipped = true;
+                                Console.Write("Dipped? [Y/N]: ");
+                                string dip = Console.ReadLine();
+                                if (dip.ToLower() == "y")
+                                {
+                                    dipped = true;
+                                    break;
+                                }
+                                else if (dip.ToLower() == "n")
+                                {
+                                    break;
+                                } 
+                                else
+                                {
+                                    Console.WriteLine("Enter Y/N.\n");
+                                }
                             }
+                        
                             Cone ConeIceCream = new Cone("Cone", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, dipped);
                             Console.WriteLine("Option changed to Cone!");
                             return ConeIceCream;
@@ -121,7 +135,7 @@ namespace PRG2_Final_Project
                                 Console.Write("{0,-15}", s);
                             }
                             Console.WriteLine();
-                            Console.Write("What flavour of waffle?");
+                            Console.Write("What flavour of waffle?: ");
                             string wFlav = Console.ReadLine();
                             foreach (string s in WFlavours)
                             {
@@ -134,10 +148,9 @@ namespace PRG2_Final_Project
                             Console.WriteLine("Option changed to Waffle!");
                             return WafIceCream;
                         default:
-                            Console.WriteLine("Enter a valid option.");
+                            Console.WriteLine("Enter a valid option.\n");
                             break;
                     }
-                    break;
                 }
                 catch (FormatException)
                 {
@@ -489,6 +502,7 @@ namespace PRG2_Final_Project
                             if (modIceCream.Toppings.Count == 4)
                             {
                                 Console.WriteLine("Max Toppings!!");
+                                Console.WriteLine();
                                 return modIceCream;
                             }
                             else
@@ -496,22 +510,43 @@ namespace PRG2_Final_Project
                                 Console.WriteLine("Toppings Available: ");
                                 foreach (string topping in toppings)
                                 {
-                                    foreach (Topping t in modIceCream.Toppings)
-                                    {
-                                        if (t.Type != topping)
-                                        {
-                                            Console.WriteLine("-{0}", topping);
-                                        }
-                                    }
+                                    Console.WriteLine("-{0}", topping);
                                 }
                                 while (true)
                                 {
                                     try
                                     {
+                                        bool ToppingExist = false;
                                         Console.Write("Which topping to add: ");
                                         string chosen = Console.ReadLine();
+                                        foreach (string topping in toppings)
+                                        {
+
+                                            if (topping.ToLower() == chosen.ToLower())
+                                            {
+                                                
+                                                chosen = topping;
+                                                ToppingExist = true;
+                                                break;
+                                            }
+                                        }
+                                        foreach (Topping t in modIceCream.Toppings)
+                                        {
+                                            if (t.Type == chosen)
+                                            {
+                                                Console.WriteLine("Topping already added.");
+                                                Console.WriteLine();continue;
+                                            }
+                                        }
+                                        if (!ToppingExist)
+                                        {
+                                            Console.WriteLine("Give a valid topping");
+                                            continue;
+                                        }
                                         Topping top = new Topping(chosen);
                                         modIceCream.Toppings.Add(top);
+                                        Console.WriteLine("Topping Added.");
+                                        Console.WriteLine();
                                         return modIceCream;
                                     }
                                     catch (FormatException)
@@ -538,16 +573,21 @@ namespace PRG2_Final_Project
                                 while (true)
                                 {
                                     try
-                                    {
+                                    {   bool ToppingExist = false;
                                         Console.Write("Which topping to remove?: ");
                                         string removeTop = Console.ReadLine().ToLower();
                                         foreach (Topping t in modIceCream.Toppings)
                                         {
                                             if (t.Type.ToLower() == removeTop)
                                             {
+                                                Console.WriteLine("Toppign Removed.");
                                                 modIceCream.Toppings.Remove(t);
                                                 return modIceCream;
                                             }
+                                        }
+                                        if (!ToppingExist)
+                                        {
+                                            Console.WriteLine("Give a valid topping");
                                         }
                                     }
                                     catch (FormatException)
@@ -585,10 +625,22 @@ namespace PRG2_Final_Project
                         case 0:
                             return modIceCream;
                         case 1:
+                            if (modIceCream.Dipped == true)
+                            {
+                                Console.WriteLine("Ice Cream already dipped.\n");
+                                return modIceCream;
+                            }
                             modIceCream.Dipped = true;
+                            Console.WriteLine("Cone has been dipped!\n");
                             return modIceCream;
                         case 2:
+                            if (modIceCream.Dipped == false)
+                            {
+                                Console.WriteLine("Cone already not dipped.\n");
+                                return modIceCream;
+                            }
                             modIceCream.Dipped = false;
+                            Console.WriteLine("Cone undipped!\n");
                             return modIceCream;
                         default:
                             Console.WriteLine("Enter a valid option");
@@ -604,54 +656,62 @@ namespace PRG2_Final_Project
 
         private Waffle ModifyWaffle(Waffle modIceCream)
         {
-            int option = -1;
             string[] WFlavours = { "Original", "Red velvet", "Charcoal", "Pandan" };
+            int option = -1;
             while (true)
             {
                 try
                 {
                     Console.WriteLine("[0]Exit.");
                     Console.WriteLine("[1]Change flavour.");
+                    Console.Write("Enter your option: ");
                     option = Convert.ToInt32(Console.ReadLine());
-                    switch (option)
-                    {
-                        case 0:
-                            return modIceCream;
-                        case 1:
-                            while (true)
-                            {
-                                try
-                                {
-                                    Console.WriteLine("Current Flavour: {}", modIceCream.WaffleFlavour);
-                                    Console.WriteLine();
-                                    Console.WriteLine("Available Flavours: ");
-                                    foreach (string Flav in WFlavours)
-                                    {
-                                        Console.WriteLine("-{}", Flav);
-                                    }
-                                    Console.WriteLine("Choose a flavour: ");
-                                    string ChosenFlavour = Console.ReadLine();
-                                    foreach (string flav in WFlavours)
-                                    {
-                                        if (flav.ToLower() == ChosenFlavour.ToLower())
-                                        {
-                                            modIceCream.WaffleFlavour = flav;
-                                            return modIceCream;
-                                        }
-                                    }
-                                }
-                                catch (FormatException)
-                                {
-                                    Console.WriteLine("Enter a valid flavour");
-                                }
-                            }
-                    }
+                    break;
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Give a valid option");
+                    Console.WriteLine("Give a valid choice.");
                 }
             }
+            switch (option)
+            {
+                case 0:
+                    return modIceCream;
+                case 1:
+                    Console.WriteLine("Current Flavour: {0}", modIceCream.WaffleFlavour);
+                    Console.WriteLine();
+                    Console.WriteLine("Available Flavours: ");
+                    foreach (string Flav in WFlavours)
+                    {
+                        if (Flav != "Original")
+                        {
+                            Console.WriteLine("-{0}", Flav + "(+$3)");continue;
+                        }
+                        Console.WriteLine("-{0}", Flav);
+                    }
+                    while (true)
+                    {
+                        Console.Write("Choose a flavour: ");
+                        string ChosenFlavour = Console.ReadLine();
+                        foreach (string flav in WFlavours)
+                        {
+                            if (flav.ToLower() == ChosenFlavour.ToLower())
+                            {
+                                modIceCream.WaffleFlavour = flav;
+                                Console.WriteLine("Flavour Changed!.");
+                                return modIceCream;
+                            }
+                        }
+                        if (true)
+                        {
+                            Console.WriteLine("Enter a valid flavour");
+                        }
+                    }
+                default:
+                    Console.WriteLine("Enter a valid option");
+                    break;
+            }
+            return modIceCream;
         }
 
 
