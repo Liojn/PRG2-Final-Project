@@ -255,6 +255,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
 void Menu()
 {
     Console.WriteLine("==========Menu==========");
+    Console.WriteLine("[0]Exit.");
     Console.WriteLine("[1]List all customers.");
     Console.WriteLine("[2]List all current orders.");
     Console.WriteLine("[3]Register a new customer.");
@@ -497,7 +498,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
             currentOrder.iceCreamList.Add(newIce);
 
 
-            while (currentOrder.iceCreamList.Count() <= 3)
+            while (currentOrder.iceCreamList.Count() < 3)
             {
                 Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
                 string addIceCreamChoice = Console.ReadLine();
@@ -964,6 +965,12 @@ int printSelected(Customer wantedCustomer)
     }
     return index;
 }
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 InitialiseCustomers(customerDict, orders);
 InitaliseOrder(customerDict);
@@ -1015,13 +1022,69 @@ while (option != 0)
                 break;
             case 6:
                 Customer wantedCustomer = printCustomers(customerDict);
-                int index = printSelected(wantedCustomer);
-                if (index == -1)
+                int Option6Choice = -1;
+                while (true)
                 {
-                    break;
+                    try
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("[1]Choose an existing ice cream object to modify.");
+                        Console.WriteLine("[2]Add an entirely new ice cream object to the order");
+                        Console.WriteLine("[3]Choose an existing ice cream object to delete from the order");
+                        Console.Write("Choose an option: ");
+                        Option6Choice = Convert.ToInt32(Console.ReadLine());
+                        break;
+                    }
+                    catch(FormatException)
+                    {
+                        Console.WriteLine("Enter a valid option.\n");
+                    }
                 }
-                wantedCustomer.CurrentOrder.ModifyIceCream(index);
+                int index = -1;
+                switch (Option6Choice)
+                {
+                    case 1:
+                        index = printSelected(wantedCustomer);
+                        if (index == -1)
+                        {
+                            break;
+                        }
+                        wantedCustomer.CurrentOrder.ModifyIceCream(index);
+                        break;
+                    case 2:
+                        if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)
+                        {
 
+                            IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder);
+                            wantedCustomer.CurrentOrder.AddIceCream(newIce);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No Current Order to add ice cream to.\n");
+                        }
+                        break;
+                    case 3:
+                        index = printSelected(wantedCustomer);
+                        if (index == -1)
+                        {
+                            break;
+                        }
+                        if (wantedCustomer.CurrentOrder.iceCreamList.Count() == 1)
+                        {
+                            Console.WriteLine("Cannot have zero ice creams in an order");
+                        }
+                        else
+                        {
+                            wantedCustomer.CurrentOrder.DeleteIceCream(index);
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("Enter a valid modification.");
+                        break;
+                }
+                Console.WriteLine();
+                Console.WriteLine("Updated: ");
+                int x = printSelected(wantedCustomer);
                 break;
             default:
                 Console.WriteLine("Give a valid option.\n");

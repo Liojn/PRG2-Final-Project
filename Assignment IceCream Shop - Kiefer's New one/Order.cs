@@ -776,13 +776,14 @@ namespace PRG2_Final_Project
                             break;
                     }
                     iceCreamList[i - 1] = modIceCream;
-                    return;
+                    break;
                 }
                 catch (FormatException)
                 {
                     Console.WriteLine("Give a valid option");
                 }
             }
+            return;
         }
 
 
