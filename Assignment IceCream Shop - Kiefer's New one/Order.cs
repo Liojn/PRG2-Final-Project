@@ -82,7 +82,8 @@ namespace PRG2_Final_Project
 
         private IceCream ModifyOption(IceCream modIceCream)
         {
-            Console.WriteLine("Current Option: {}", modIceCream.GetType());
+            string[] waf = { "Original", "Red velvet", "Charcoal", "Pandan" };
+            Console.WriteLine("Current Option: {0}", modIceCream.GetType());
             Console.WriteLine("[1]Switch to Cup.");
             Console.WriteLine("[2]Switch to Cone.");
             Console.WriteLine("[3]Switch to Waffle.");
@@ -98,18 +99,40 @@ namespace PRG2_Final_Project
                         case 0:
                             break;
                         case 1 when modIceCream is not Cup:
-                            modIceCream = (Cup)modIceCream;
-                            break;
+                            Cup CupIceCream = new Cup("Cup", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings);
+                            return CupIceCream;
                         case 2 when modIceCream is not Cone:
-                            modIceCream = (Cone)modIceCream;
-                            break;
+                            bool dipped = false;
+                            Console.WriteLine("Dipped? [Y/N]");
+                            string dip = Console.ReadLine();
+                            if (dip.ToLower() == "y")
+                            {
+                                dipped = true;
+                            }
+                            Cone ConeIceCream = new Cone("Cone", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, dipped);
+                            return ConeIceCream;
                         case 3 when modIceCream is not Waffle:
-                            modIceCream = (Waffle)modIceCream;
-                            break;
+                            string[] WFlavours = { "Original", "Red velvet", "Charcoal", "Pandan" };
+                            Console.WriteLine("Available Flavours: ");
+                            foreach (string s in WFlavours)
+                            {
+                                Console.Write("{0,-15}", s);
+                            }
+                            Console.WriteLine();
+                            Console.WriteLine("What flavour of waffle?");
+                            string wFlav = Console.ReadLine();
+                            foreach (string s in WFlavours)
+                            {
+                                if (s.ToLower() == wFlav.ToLower())
+                                {
+                                    wFlav = s; break;
+                                }
+                            }
+                            Waffle WafIceCream = new Waffle("Waffle", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, wFlav);
+                            return WafIceCream;
                         default:
                             Console.WriteLine("Enter a valid option.");
                             break;
-
                     }
                     break;
                 }
@@ -326,7 +349,7 @@ namespace PRG2_Final_Project
                                     Console.WriteLine("Flavours you currently have: ");
                                     foreach (Flavour flavour in modIceCream.Flavours)
                                     {
-                                        Console.WriteLine("-{}", flavour);
+                                        Console.WriteLine("-{0}", flavour);
                                     }
                                     Console.Write("Which flavour to change?: ");
                                     while (true)
@@ -431,7 +454,7 @@ namespace PRG2_Final_Project
                                     {
                                         if (t.Type != topping)
                                         {
-                                            Console.WriteLine("-{}", topping);
+                                            Console.WriteLine("-{0}", topping);
                                         }
                                     }
                                 }
@@ -464,7 +487,7 @@ namespace PRG2_Final_Project
                                 Console.WriteLine("Your toppings: ");
                                 foreach (Topping t in modIceCream.Toppings)
                                 {
-                                    Console.WriteLine("-{}", t.Type);
+                                    Console.WriteLine("-{0}", t.Type);
                                 }
                                 while (true)
                                 {
@@ -602,15 +625,15 @@ namespace PRG2_Final_Project
 
             for (int x = 0; x < PossibleChoices.Count(); x++)
             {
-                Console.WriteLine("[{}]: {}", x + 1, PossibleChoices[i]);
+                Console.WriteLine("[{0}]: {1}", x + 1, PossibleChoices[x]);
             }
             if (modIceCream is Cone)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Length + 1, "Cone Dip");
+                Console.WriteLine("[{0}]: {1}", PossibleChoices.Length + 1, "Cone Dip");
             }
             else if (modIceCream is Waffle)
             {
-                Console.WriteLine("[{}]: {}", PossibleChoices.Length + 1, "Waffle Flavor");
+                Console.WriteLine("[{0}]: {1}", PossibleChoices.Length + 1, "Waffle Flavor");
             }
             while (true)
             {
@@ -647,6 +670,7 @@ namespace PRG2_Final_Project
                             break;
                     }
                     iceCreamList[i - 1] = modIceCream;
+                    return;
                 }
                 catch (FormatException)
                 {
