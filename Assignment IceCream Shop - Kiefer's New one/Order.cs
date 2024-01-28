@@ -421,6 +421,7 @@ namespace PRG2_Final_Project
                                                         }
                                                     }
                                                     modIceCream.Flavours.Add(newFlavour);
+                                                    Console.WriteLine("Flavour Modified.");
                                                     return modIceCream;
                                                 }
                                                 else if (f.Type == Change && f.Quantity <= 1)
@@ -431,6 +432,7 @@ namespace PRG2_Final_Project
                                                         if (flav.Type == Chosen)
                                                         {
                                                             flav.Quantity += 1;
+                                                            Console.WriteLine("Flavour Modified.");
                                                             return modIceCream;
                                                         }
                                                     }
@@ -438,7 +440,7 @@ namespace PRG2_Final_Project
                                                     return modIceCream;
                                                 }
                                             }
-
+                                            Console.WriteLine("Flavour Modified.");
                                             return modIceCream;
                                         }
                                         catch (FormatException)
