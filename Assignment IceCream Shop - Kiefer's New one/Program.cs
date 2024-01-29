@@ -25,7 +25,7 @@ List<string> ToppingsFile = new List<string>();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void InitaliseFlavour(Dictionary<string, int> FlavoursFile)
+void InitaliseFlavour(Dictionary<string, int> FlavoursFile) /// Reading Flavour.csv
 {
     string line;
     int count = 0;
@@ -45,8 +45,8 @@ void InitaliseFlavour(Dictionary<string, int> FlavoursFile)
         }
     }
 }
-
-void InitaliseToppings(List<string> ToppingsFile)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void InitaliseToppings(List<string> ToppingsFile) /// Reading Toppings.csv
 {
     string line;
     int count = 0;
@@ -66,28 +66,6 @@ void InitaliseToppings(List<string> ToppingsFile)
         }
     };
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
-
-void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
-{
-    string FilePath = "customers.csv";
-    string dataline = "";
-    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard";
-    using StreamWriter writer = new StreamWriter(FilePath, false);
-    {
-        writer.WriteLine(Header);
-        foreach (Customer customer in customerDict.Values)
-        {
-            dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
-            writer.WriteLine(dataline);
-            dataline = "";
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to order.csv file
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////// Reading the customer.csv file
@@ -166,8 +144,8 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                     dippedCone = Convert.ToBoolean(data[6].ToLower());
                 }
 
-
                 Order order = new Order(id, TimeRecevied);
+
                 order.TimeFulfilled = TimeFulfilled;
                 for (int i = 8; i <= 10; i++)
                 {
@@ -214,42 +192,104 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                         break;
                     }
                 }
-
-
-                if (Option == "Waffle")
+                int OrdersIndex = -1;
+                bool exists = false;
+                foreach (Order o in orders)
                 {
-                    IceCream ice = new Waffle(Option, Scoops, flavourList, toppingsList, waffleFlavour);
-                    order.AddIceCream(ice);
-                    ice.Flavours = flavourList;
-                    ice.Toppings = toppingsList;
+                    if (o.Id == id)
+                    {
+                        OrdersIndex = orders.IndexOf(o);
+                        exists = true;
+                    }
                 }
-                else if (Option == "Cone")
+
+                if (exists)
                 {
-                    IceCream ice = new Cone(Option, Scoops, flavourList, toppingsList, dippedCone);
-                    order.AddIceCream(ice);
-                    ice.Flavours = flavourList;
-                    ice.Toppings = toppingsList;
+                    if (Option == "Waffle")
+                    {
+                        IceCream ice = new Waffle(Option, Scoops, flavourList, toppingsList, waffleFlavour);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        orders[OrdersIndex].iceCreamList.Add(ice);
+                    }
+                    else if (Option == "Cone")
+                    {
+                        IceCream ice = new Cone(Option, Scoops, flavourList, toppingsList, dippedCone);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        orders[OrdersIndex].iceCreamList.Add(ice);
+                    }
+                    else
+                    {
+                        IceCream ice = new Cup(Option, Scoops, flavourList, toppingsList);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        orders[OrdersIndex].iceCreamList.Add(ice);
+                    }
                 }
                 else
                 {
-                    IceCream ice = new Cup(Option, Scoops, flavourList, toppingsList);
-                    order.AddIceCream(ice);
-                    ice.Flavours = flavourList;
-                    ice.Toppings = toppingsList;
-                }
-                foreach (KeyValuePair<int, Customer> kvp in customerDict)
-                {
-                    if (MemberID == kvp.Key)
+                    if (Option == "Waffle")
                     {
-                        kvp.Value.orderHistory.Add(order);
-                        break;
+                        IceCream ice = new Waffle(Option, Scoops, flavourList, toppingsList, waffleFlavour);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        order.iceCreamList.Add(ice);
                     }
+                    else if (Option == "Cone")
+                    {
+                        IceCream ice = new Cone(Option, Scoops, flavourList, toppingsList, dippedCone);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        order.iceCreamList.Add(ice);
+                    }
+                    else
+                    {
+                        IceCream ice = new Cup(Option, Scoops, flavourList, toppingsList);
+                        ice.Flavours = flavourList;
+                        ice.Toppings = toppingsList;
+                        order.iceCreamList.Add(ice);
+                    }
+                    foreach (KeyValuePair<int, Customer> kvp in customerDict)
+                    {
+                        if (MemberID == kvp.Key)
+                        {
+                            kvp.Value.orderHistory.Add(order);
+                            break;
+                        }
+                    }
+                    orders.Add(order);
                 }
-                orders.Add(order);
+                
             }
         }
     }
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
+
+void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
+{
+    string FilePath = "customers.csv";
+    string dataline = "";
+    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard";
+    using StreamWriter writer = new StreamWriter(FilePath, false);
+    {
+        writer.WriteLine(Header);
+        foreach (Customer customer in customerDict.Values)
+        {
+            dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
+            writer.WriteLine(dataline);
+            dataline = "";
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to order.csv file
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Menu()
@@ -439,8 +479,6 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
             newCustomer.Rewards = newPointCard;
 
             customerDict.Add(memberId, newCustomer);
-
-            UpdateCustomerCSV(customerDict);
             Console.WriteLine("Registration successful!");
             return;
         }
@@ -520,13 +558,14 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
                     }
                     else if (addIceCreamChoice.ToUpper() == "N")
                     {
-                        return;
+                        break;
                     }
                     else
                     {
                         Console.WriteLine("Enter [Y/N].");
                     }
                 }
+                break;
             }
 
             if (kvp.Value.Rewards.Tier == "Gold")
@@ -539,7 +578,6 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
             }
             kvp.Value.CurrentOrder = currentOrder;
             orders.Add(currentOrder);
-            kvp.Value.orderHistory.Add(currentOrder);
             Console.WriteLine("Order has been placed successfully!\n");
 
             break;
@@ -925,8 +963,6 @@ int printSelected(Customer wantedCustomer)
 
 
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 InitialiseCustomers(customerDict, orders);
 InitaliseOrder(customerDict);
@@ -940,141 +976,154 @@ InitaliseToppings(ToppingsFile);
 
 
 int option = -1;
-while (option != 0)
+while (true)
 {
+    Menu();
     while (true)
     {
-        Menu();
-        while (true)
+        try
         {
-            try
-            {
-                Console.Write("Enter your option: ");
-                option = Convert.ToInt32(Console.ReadLine());
-                break;
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Enter a valid number.\n");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error Message: {0}", ex);
+            Console.Write("Enter your option: ");
+            option = Convert.ToInt32(Console.ReadLine());
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Enter a valid number.\n");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error Message: {0}", ex);
 ;           }
-        }
-        Console.WriteLine();
-        switch (option)
-        {
-            case 0:
-                Console.WriteLine("Exited");
-                break;
-            case 1:
-                ListCustomer(customerDict);
-                break;
-            case 2:
-                ListCurrentOrders(GoldQueue, RegularQueue);
-                break;
-            case 3:
-                RegisterNewCustomer(customerDict);
-                break;
-            case 4:
-                CreateCustomerOrder(customerDict, orders, FlavoursFile, ToppingsFile);
-                break;
-            case 5:
-                OrderDetailsCustomer(customerDict);
-                break;
-            case 6:
-                Customer wantedCustomer = printCustomers(customerDict);
-                int Option6Choice = -1;
-                while (true)
-                {
-                    try
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("[1]Choose an existing ice cream object to modify.");
-                        Console.WriteLine("[2]Add an entirely new ice cream object to the order");
-                        Console.WriteLine("[3]Choose an existing ice cream object to delete from the order");
-                        Console.Write("Choose an option: ");
-                        Option6Choice = Convert.ToInt32(Console.ReadLine());
-                        break;
-                    }
-                    catch(FormatException)
-                    {
-                        Console.WriteLine("Enter a valid option.\n");
-                    }
-                }
-                int index = -1;
-                bool Updated = false;
-                switch (Option6Choice)
-                {
-                    case 1:
-                        index = printSelected(wantedCustomer);
-                        if (index == -1)
-                        {
-                            break;
-                        }
-                        wantedCustomer.CurrentOrder.ModifyIceCream(index);
-                        Updated = true;
-                        break;
-                    case 2:
-                        if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)
-                        {
-
-                            IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder);
-                            wantedCustomer.CurrentOrder.AddIceCream(newIce);
-                            Updated = true;
-                        }
-                        else
-                        {
-                            Console.WriteLine("No Current Order to add ice cream to.\n");
-                        }
-                        break;
-                    case 3:
-                        index = printSelected(wantedCustomer);
-                        if (index == -1)
-                        {
-                            break;
-                        }
-                        if (wantedCustomer.CurrentOrder.iceCreamList.Count() == 1)
-                        {
-                            Console.WriteLine("Cannot have zero ice creams in an order");
-                        }
-                        else
-                        {
-                            wantedCustomer.CurrentOrder.DeleteIceCream(index);
-                            Updated = true;
-                        }
-                        break;
-                    default:
-                        Console.WriteLine("Enter a valid modification.");
-                        break;
-                }
-                Console.WriteLine();
-                if (Updated)
-                {
-                    Console.WriteLine("=============================================================================================Updated Order=============================================================================================");
-                    foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
-                    {
-                        string s = FormattingPrint(ice);
-                        if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
-                        {
-                            string TimeFulfilled = "Unfulfilled";
-                            Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, TimeFulfilled, s);
-                        }
-                        else
-                        {
-                            Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}",wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
-                        }
-                    }
-
-                }
-                break;
-            default:
-                Console.WriteLine("Give a valid option.\n");
-                break;
-        
-        }
     }
+    Console.WriteLine();
+    if (option == 0)
+    {
+        UpdateCustomerCSV(customerDict);
+        Console.WriteLine("Exited");
+        break;
+    }
+    switch (option)
+    {
+        case 1:
+            ListCustomer(customerDict);
+            break;
+        case 2:
+            ListCurrentOrders(GoldQueue, RegularQueue);
+            break;
+        case 3:
+            RegisterNewCustomer(customerDict);
+            break;
+        case 4:
+            CreateCustomerOrder(customerDict, orders, FlavoursFile, ToppingsFile);
+            break;
+        case 5:
+            OrderDetailsCustomer(customerDict);
+            break;
+        case 6:
+
+            Customer wantedCustomer = printCustomers(customerDict);
+            int modIceCreamChoice = -1;
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("[1]Choose an existing ice cream object to modify.");
+                    Console.WriteLine("[2]Add an entirely new ice cream object to the order");
+                    Console.WriteLine("[3]Choose an existing ice cream object to delete from the order");
+                    Console.Write("Choose an option: ");
+                    modIceCreamChoice = Convert.ToInt32(Console.ReadLine());
+                    break;
+                }
+                catch(FormatException)
+                {
+                    Console.WriteLine("Enter a valid option.\n");
+                }
+            }
+            int index = -1;
+            bool Updated = false;
+            switch (modIceCreamChoice)
+            {
+                case 1:
+                    index = printSelected(wantedCustomer);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    wantedCustomer.CurrentOrder.ModifyIceCream(index);
+                    Updated = true;
+                    break;
+                case 2:
+                    if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)
+                    {
+
+                        IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder);
+                        wantedCustomer.CurrentOrder.AddIceCream(newIce);
+                        Updated = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No Current Order to add ice cream to.\n");
+                    }
+                    break;
+                case 3:
+                    index = printSelected(wantedCustomer);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    if (wantedCustomer.CurrentOrder.iceCreamList.Count() == 1)
+                    {
+                        Console.WriteLine("Cannot have zero ice creams in an order");
+                    }
+                    else
+                    {
+                        wantedCustomer.CurrentOrder.DeleteIceCream(index);
+                        Updated = true;
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Enter a valid modification.");
+                    break;
+            }
+            Console.WriteLine();
+            if (Updated)
+            {
+                Console.WriteLine("=============================================================================================Updated Order=============================================================================================");
+                foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
+                {
+                    string s = FormattingPrint(ice);
+                    if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
+                    {
+                        string TimeFulfilled = "Unfulfilled";
+                        Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, TimeFulfilled, s);
+                    }
+                    else
+                    {
+                        Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
+                    }
+                }
+                int OrdersIndex = -1;
+                foreach (Order o in orders)
+                {
+                    if (o.Id == wantedCustomer.CurrentOrder.Id)
+                    {
+                        OrdersIndex = orders.IndexOf(o);
+                        break;
+                    }
+                }
+                if (OrdersIndex != -1)
+                {
+                    orders[OrdersIndex] = wantedCustomer.CurrentOrder;
+                }
+            }
+            break;
+        default:
+            Console.WriteLine("Give a valid option.\n");
+            break;
+
+       }
 }
 
 

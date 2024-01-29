@@ -805,10 +805,6 @@ namespace PRG2_Final_Project
             double TotalPrice = 0;
             foreach (IceCream ice in iceCreamList)
             {
-                if (ice.CalculatePrice() > mostExpensive)
-                {
-                    mostExpensive = ice.CalculatePrice();
-                }
                 double price = ice.CalculatePrice();
                 TotalPrice += price;
             }
