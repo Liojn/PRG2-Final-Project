@@ -278,8 +278,58 @@ void ListCustomer(Dictionary<int, Customer> customerDict)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-//Printing orders geenralised method
-void OrderPrint(Queue<Order> queue)
+//Formatting the string for printing generalid method.
+string FormattingPrint(IceCream ice)
+{
+    string s = "";
+    List<string> k = new List<string>();
+    List<string> t = new List<string>();
+    string mod = "None";
+    string joinedFlavour = "";
+    string joinedTopping = "";
+    foreach (Flavour f in ice.Flavours)
+    {
+        if (f.Premium == true)
+        {
+            string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
+            k.Add(y);
+        }
+        else
+        {
+            string y = f.Type + " Quantity: " + f.Quantity;
+            k.Add(y);
+        }
+
+    }
+    foreach (Topping i in ice.Toppings)
+    {
+        t.Add(i.Type);
+    }
+    if (ice.Toppings.Count == 0)
+    {
+        t.Add("None");
+    }
+
+    if (ice is Waffle)
+    {
+        Waffle waf = (Waffle)ice;
+        mod = waf.WaffleFlavour;
+    }
+    else if (ice is Cone)
+    {
+        Cone co = (Cone)ice;
+        if (co.Dipped == true)
+        {
+            mod = "Dipped";
+        }
+    }
+    joinedFlavour = String.Join(",", k.ToArray());
+    joinedTopping = String.Join(",", t.ToArray());
+    s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping + "\n\n";
+    return s;
+}
+
+void OrderPrint(Queue<Order> queue)///// Print orders.
 {
     foreach (Order o in queue)
     {
@@ -287,50 +337,7 @@ void OrderPrint(Queue<Order> queue)
         string s = "";
         foreach (IceCream ice in o.iceCreamList)
         {
-            List<string> k = new List<string>();
-            List<string> t = new List<string>();
-            string mod = "None";
-            string joinedFlavour = "";
-            string joinedTopping = "";
-            foreach (Flavour f in ice.Flavours)
-            {
-                if (f.Premium == true)
-                {
-                    string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
-                    k.Add(y);
-                }
-                else
-                {
-                    string y = f.Type + " Quantity: " + f.Quantity;
-                    k.Add(y);
-                }
-
-            }
-            foreach (Topping i in ice.Toppings)
-            {
-                t.Add(i.Type);
-            }
-            if (ice.Toppings.Count == 0)
-            {
-                t.Add("None");
-            }
-
-            if (ice is Waffle)
-            {
-                Waffle waf = (Waffle)ice;
-                mod = waf.WaffleFlavour;
-            }
-            else if (ice is Cone)
-            {
-                Cone co = (Cone)ice;
-                if (co.Dipped == true)
-                {
-                    mod = "Dipped";
-                }
-            }
-            joinedFlavour = String.Join(",", k.ToArray());
-            joinedTopping = String.Join(",", t.ToArray());
-            s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping + "\n\n";
+            s += FormattingPrint(ice);
         }
         if (string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled)))
         {
@@ -500,19 +507,25 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
 
             while (currentOrder.iceCreamList.Count() < 3)
             {
-                Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
-                string addIceCreamChoice = Console.ReadLine();
-
-                if (addIceCreamChoice.ToUpper() == "Y")
+                while (true)
                 {
-                    
-                    newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-                    currentOrder.iceCreamList.Add(newIce);
+                    Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
+                    string addIceCreamChoice = Console.ReadLine();
 
-                }
-                else
-                {
-                    break;
+                    if (addIceCreamChoice.ToUpper() == "Y")
+                    {
+
+                        newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+                        currentOrder.iceCreamList.Add(newIce);
+                    }
+                    else if (addIceCreamChoice.ToUpper() == "N")
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter [Y/N].");
+                    }
                 }
             }
 
@@ -597,11 +610,22 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         else if (iceCreamOption.ToLower() == "cone")
         {
             iceCreamOption = "Cone";
-            Console.Write("Do you want to upgrade to a chocolate-dipped cone(+$2)? [Y/N]: ");
-            string chocoDippedChoice = Console.ReadLine();
-            if (chocoDippedChoice.ToLower() == "Y")
+            while (true)
             {
-                isDipped = true;
+                Console.Write("Do you want to upgrade to a chocolate-dipped cone(+$2)? [Y/N]: ");
+                string chocoDippedChoice = Console.ReadLine();
+                if (chocoDippedChoice.ToUpper() == "Y")
+                {
+                    isDipped = true; break;
+                }
+                else if (chocoDippedChoice.ToUpper() == "N")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Enter [Y/N].\n");
+                }
             }
             break;
         }
@@ -632,6 +656,10 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         catch (FormatException)
         {
             Console.WriteLine("Enter a valid number.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error Message: {0}", ex);
         }
     }
 
@@ -727,6 +755,10 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         {
             Console.WriteLine("Enter a valid number.");
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error Message: {0}", ex);
+        }
     }
     for (int i = 0; i < noOfToppings; i++)
     {
@@ -804,53 +836,10 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
         string s = "";
         foreach (IceCream ice in o.iceCreamList)
         {
-            List<string> k = new List<string>();
-            List<string> t = new List<string>();
-            string mod = "None";
-            string joinedFlavour = "";
-            string joinedTopping = "";
-            foreach (Flavour f in ice.Flavours)
-            {
-                if (f.Premium == true)
-                {
-                    string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
-                    k.Add(y);
-                }
-                else
-                {
-                    string y = f.Type + " Quantity: " + f.Quantity;
-                    k.Add(y);
-                }
-
-            }
-            foreach (Topping i in ice.Toppings)
-            {
-                t.Add(i.Type);
-            }
-            if (ice.Toppings.Count == 0)
-            {
-                t.Add("None");
-            }
-
-            if (ice is Waffle)
-            {
-                Waffle waf = (Waffle)ice;
-                mod = waf.WaffleFlavour;
-            }
-            else if (ice is Cone)
-            {
-                Cone co = (Cone)ice;
-                if (co.Dipped == true)
-                {
-                    mod = "Dipped";
-                }
-            }
-            joinedFlavour = String.Join(",", k.ToArray());
-            joinedTopping = String.Join(",", t.ToArray());
-            s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping + "\n\n";
+            s += FormattingPrint(ice);
         }
         
-        Console.WriteLine("ID: {0,-5}{1,-22}{2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, s);
+        Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, s);
         Console.WriteLine();
     }
 
@@ -879,6 +868,11 @@ int printSelected(Customer wantedCustomer)
         Console.WriteLine("No Current Order.");
         return -1;
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error Message: {0}", ex);
+        return -1;
+    }
     if (iceList.Count == 0)
     {
         if (wantedCustomer.orderHistory.Count == 0)
@@ -893,50 +887,7 @@ int printSelected(Customer wantedCustomer)
     foreach (IceCream ice in iceList)
     {
         string s = "";
-        List<string> k = new List<string>();
-        List<string> t = new List<string>();
-        string mod = "None";
-        string joinedFlavour = "";
-        string joinedTopping = "";
-        foreach (Flavour f in ice.Flavours)
-        {
-            if (f.Premium == true)
-            {
-                string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
-                k.Add(y);
-            }
-            else
-            {
-                string y = f.Type + " Quantity: " + f.Quantity;
-                k.Add(y);
-            }
-
-        }
-        foreach (Topping i in ice.Toppings)
-        {
-            t.Add(i.Type);
-        }
-        if (ice.Toppings.Count == 0)
-        {
-            t.Add("None");
-        }
-
-        if (ice is Waffle)
-        {
-            Waffle waf = (Waffle)ice;
-            mod = waf.WaffleFlavour;
-        }
-        else if (ice is Cone)
-        {
-            Cone co = (Cone)ice;
-            if (co.Dipped == true)
-            {
-                mod = "Dipped";
-            }
-        }
-        joinedFlavour = String.Join(",", k.ToArray());
-        joinedTopping = String.Join(",", t.ToArray());
-        s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping + "\n\n";
+        s += FormattingPrint(ice);
         if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
         {
             TimeFulfilled = "Unfulfilled";
@@ -961,6 +912,11 @@ int printSelected(Customer wantedCustomer)
         catch (FormatException)
         {
             Console.WriteLine("Enter a valid order;");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error Message: {0}", ex);
+            ;
         }
     }
     return index;
@@ -1001,10 +957,17 @@ while (option != 0)
             {
                 Console.WriteLine("Enter a valid number.\n");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Message: {0}", ex);
+;           }
         }
         Console.WriteLine();
         switch (option)
         {
+            case 0:
+                Console.WriteLine("Exited");
+                break;
             case 1:
                 ListCustomer(customerDict);
                 break;
@@ -1041,6 +1004,7 @@ while (option != 0)
                     }
                 }
                 int index = -1;
+                bool Updated = false;
                 switch (Option6Choice)
                 {
                     case 1:
@@ -1050,6 +1014,7 @@ while (option != 0)
                             break;
                         }
                         wantedCustomer.CurrentOrder.ModifyIceCream(index);
+                        Updated = true;
                         break;
                     case 2:
                         if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)
@@ -1057,6 +1022,7 @@ while (option != 0)
 
                             IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder);
                             wantedCustomer.CurrentOrder.AddIceCream(newIce);
+                            Updated = true;
                         }
                         else
                         {
@@ -1076,6 +1042,7 @@ while (option != 0)
                         else
                         {
                             wantedCustomer.CurrentOrder.DeleteIceCream(index);
+                            Updated = true;
                         }
                         break;
                     default:
@@ -1083,8 +1050,24 @@ while (option != 0)
                         break;
                 }
                 Console.WriteLine();
-                Console.WriteLine("Updated: ");
-                int x = printSelected(wantedCustomer);
+                if (Updated)
+                {
+                    Console.WriteLine("=============================================================================================Updated Order=============================================================================================");
+                    foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
+                    {
+                        string s = FormattingPrint(ice);
+                        if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
+                        {
+                            string TimeFulfilled = "Unfulfilled";
+                            Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, TimeFulfilled, s);
+                        }
+                        else
+                        {
+                            Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}",wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
+                        }
+                    }
+
+                }
                 break;
             default:
                 Console.WriteLine("Give a valid option.\n");

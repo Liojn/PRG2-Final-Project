@@ -120,7 +120,7 @@ namespace PRG2_Final_Project
                                 } 
                                 else
                                 {
-                                    Console.WriteLine("Enter Y/N.\n");
+                                    Console.WriteLine("Enter [Y/N].\n");
                                 }
                             }
                         
