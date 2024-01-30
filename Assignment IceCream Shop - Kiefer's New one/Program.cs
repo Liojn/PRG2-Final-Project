@@ -1068,7 +1068,6 @@ int printSelected(Customer wantedCustomer)
 //Feature a
 
 //Process order and checkout
-
 void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Queue<Order> RegularQueue)
 {
     try
@@ -1077,6 +1076,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
         if (iceCreamOrder != null)
         {
             double totalPrice = DisplayOrder(iceCreamOrder);
+            bool birthdayPromoGiven = false;
             foreach (Customer customer in customerDict.Values)
             {
                 if (customer.CurrentOrder != null && customer.CurrentOrder.Id == iceCreamOrder.Id)
@@ -1084,17 +1084,24 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                     Console.WriteLine("Customer's Name: {0}", customer.Name);
                     Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
                     Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
-                    totalPrice = BirthdayPromo(customer, iceCreamOrder, totalPrice);
+                    if (birthdayPromoGiven == false)
+                    {
+                        BirthdayPromo(customer, iceCreamOrder, totalPrice);
+                        birthdayPromoGiven = true;
+                    }
                     PunchCardPromo(customer, iceCreamOrder, totalPrice);
                     PointsRedemption(customer, totalPrice);
                     MakePayment(customer, totalPrice);
-
                     using (StreamWriter writer = new StreamWriter("orderPrice.csv"))
                     {
                         writer.WriteLine("Order ID", "Total Price");
                         writer.WriteLine("{0}, {1}", customer.CurrentOrder.Id, totalPrice);
                     }
                     break;
+                }
+                else
+                {
+                    continue;
                 }
             }
         }
@@ -1103,6 +1110,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
     {
         Console.WriteLine($"An error occurred. {e.Message}");
     }
+
 }
 
 Order DequeueOrder(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
@@ -1139,7 +1147,7 @@ static double DisplayOrder(Order iceCreamOrder)
 static double BirthdayPromo(Customer customer, Order iceCreamOrder, double totalPrice)
 {
     double highestPrice = 0;
-    if (customer.IsBirthday())
+    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day)
     {
         Console.WriteLine("Birthday Promotion Valid.");
 
@@ -1160,13 +1168,12 @@ static double PunchCardPromo(Customer customer, Order iceCreamOrder, double tota
 {
     int memberPunchCard = customer.Rewards.PunchCards;
     Console.WriteLine("Current Punch Card value: {0}", memberPunchCard);
-    if (memberPunchCard <= 10)
+    if (memberPunchCard < 10)
     {
-        memberPunchCard += iceCreamOrder.iceCreamList.Count();
-        Console.WriteLine(iceCreamOrder.iceCreamList.Count());
+        memberPunchCard++;
         Console.WriteLine("New Punch Card value: {0}", memberPunchCard);
     }
-    else
+    else if (memberPunchCard == 10)
     {
         memberPunchCard = 0;
         double firstIceCream = iceCreamOrder.iceCreamList[0].CalculatePrice();
@@ -1174,6 +1181,7 @@ static double PunchCardPromo(Customer customer, Order iceCreamOrder, double tota
         Console.WriteLine("Punch Card is completed and has been reset.");
         Console.WriteLine("Total Amount (after completion of Punch Card): ${0}", totalPrice);
     }
+    customer.Rewards.PunchCards = memberPunchCard;
     return totalPrice;
 }
 
@@ -1196,11 +1204,26 @@ static double PointsRedemption(Customer customer, double totalPrice)
             else
             {
                 membershipPoints -= redeemPoints;
+                Console.WriteLine("Membership Points (after redemption): {0}", membershipPoints);
+                totalPrice -= redeemPoints * 0.02;
+                Console.WriteLine("Total Amount (after Points redemption): ${0}", totalPrice);
             }
-            Console.WriteLine("Membership Points (after redemption): ", customer.Rewards.Points);
-            totalPrice -= redeemPoints * 0.02;
-            Console.WriteLine("Total Amount (after Points redemption: ${0}", totalPrice);
+            customer.Rewards.Points = membershipPoints;
         }
+
+        Console.WriteLine("Membership status (before): {0}", membershipStatus);
+        if (membershipStatus != "Gold")
+        {
+            if (membershipPoints >= 100)
+            {
+                membershipStatus = "Gold";
+            }
+            else if (membershipPoints >= 50)
+            {
+                membershipStatus = "Silver";
+            }
+        }
+        Console.WriteLine("Membership status (after): {0}", membershipStatus);
     }
     else
     {
@@ -1223,10 +1246,10 @@ void MakePayment(Customer customer, double totalPrice)
         customer.CurrentOrder.TimeFulfilled = timeFulfilled;
 
         customer.orderHistory.Add(customer.CurrentOrder);
-        Console.WriteLine(customer.orderHistory);
     }
-}
 
+    Console.WriteLine("Payment successful!");
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display monthly charged amounts breakdown & total charged amounts for the year
