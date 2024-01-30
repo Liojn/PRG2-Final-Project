@@ -288,9 +288,86 @@ void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to order.csv file
 
-void UpdateOrderCSV(List<Order> orders)
+void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
 {
+    string filepath = "orders.csv";
+    using StreamWriter writer = new StreamWriter(filepath, false);
+    {
+        writer.WriteLine("Id,MemberId,TimeReceived,TimeFulfilled,Option,Scoops,Dipped,WaffleFlavour,Flavour1,Flavour2,Flavour3,Topping1,Topping2,Topping3,Topping4");
+        foreach (Order o in orders)
+        {
+            string MemberID = "";
+            foreach (Customer customer in customerDict.Values)
+            {
+                bool found = false;
+                 foreach (Order temp in customer.orderHistory)
+                {
+                    if (temp.Id == o.Id)
+                    {
+                        MemberID = Convert.ToString(customer.MemberId);
+                        found = true;
+                        break;
+                    }
+                }
+                 if (found)
+                {
+                    break;
+                }
+            }
+            string TimeFulfilled = "";
+            if (!string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled)))
+            {
+                TimeFulfilled = o.TimeFulfilled?.ToString("dd/MM/yyyy HH:mm");
+            }
 
+            foreach (IceCream ice in o.iceCreamList)
+            {
+                string joinedFlavour = "";
+                string joinedTopping = "";
+                string WaffleFlavour = "";
+                string Dipped = "";
+                List<string> fList = new List<string>();
+                foreach (Flavour f in ice.Flavours)
+                {
+                    fList.Add(f.Type);
+                }
+                if (fList.Count <= 3)
+                {
+                    fList.Add("");
+                }
+                List<string> tList = new List<string>();
+                foreach (Topping t in ice.Toppings)
+                {
+                    tList.Add(t.Type);
+                }
+                if (tList.Count <= 4)
+                {
+                    tList.Add("");
+                }
+                if (ice is Waffle)
+                {
+                    Waffle waf = (Waffle)ice;
+                    WaffleFlavour = waf.WaffleFlavour;
+                }
+                else if (ice is Cone)
+                {
+                    Cone cone = (Cone)ice;
+                    if (cone.Dipped)
+                    {
+                        Dipped = "True";
+                    }
+                    else
+                    {
+                        Dipped = "False";
+                    }
+                }
+                joinedFlavour = String.Join(",", fList);
+                joinedTopping = String.Join(",", tList);
+                writer.Write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n", o.Id, MemberID, o.TimeReceived, o.TimeFulfilled, ice.Option, ice.Scoops, Dipped, WaffleFlavour, joinedFlavour, joinedTopping);
+            }
+        }
+        
+    }
 }
 
 
@@ -305,6 +382,7 @@ void Menu()
     Console.WriteLine("[4]Create a new customer's order.");
     Console.WriteLine("[5]Display order details of a customer.");
     Console.WriteLine("[6]Modify Order Detail.");
+    Console.WriteLine("[7].");
 }
 
 
@@ -519,7 +597,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
         }
         if (!NameExists)
         {
-            Console.WriteLine("Enter a valid name.");
+            Console.WriteLine("Enter a valid name.\n");
             continue;
         }
         else
@@ -863,25 +941,43 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
 void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
-
     Customer wantedCustomer = printCustomers(customerDict);
+    Console.WriteLine("==========Current and Past Order Details==========");
+    Console.WriteLine("Current Orders: ");
+    if (wantedCustomer.CurrentOrder.iceCreamList.Count == 0)
+    {
+        Console.WriteLine("Customer has no current orders");
+    }
+    else
+    {
+        string s = "";
+        foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
+        {
+            s = FormattingPrint(ice);
+            Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
+            Console.WriteLine();
+        }
+    }
+
+
+    Console.WriteLine("Past Orders: ");
     if (wantedCustomer.orderHistory.Count == 0)
     {
-        Console.WriteLine("Customer has no orders");
-        return;
+        Console.WriteLine("Customer has no past orders");
     }
-    Console.WriteLine("==========Current and Past Order Details==========");
-    foreach (Order o in wantedCustomer.orderHistory)
+    else
     {
-
-        string s = "";
-        foreach (IceCream ice in o.iceCreamList)
+        string c = "";
+        foreach (Order o in wantedCustomer.orderHistory)
         {
-            s += FormattingPrint(ice);
+
+            foreach (IceCream ice in o.iceCreamList)
+            {
+                c = FormattingPrint(ice);
+                Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, c);
+                Console.WriteLine();
+            }
         }
-        
-        Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, s);
-        Console.WriteLine();
     }
 
 }
@@ -1003,6 +1099,7 @@ while (true)
     if (option == 0)
     {
         UpdateCustomerCSV(customerDict);
+        UpdateOrderCSV(orders, customerDict);
         Console.WriteLine("Exited");
         break;
     }
@@ -1121,6 +1218,16 @@ while (true)
                     orders[OrdersIndex] = wantedCustomer.CurrentOrder;
                 }
             }
+            break; 
+        case 7:
+            DateTime dob = DateTime.Now;
+            Customer custom = new Customer("Ze Yu", 10, dob);
+            Order testOrder = new Order(5, DateTime.Now);
+            testOrder.iceCreamList.Add(new Cup("Cup", 1, new List<Flavour>(), new List<Topping>()));
+            testOrder.TimeFulfilled = DateTime.Now;
+            custom.orderHistory.Add(testOrder);
+            orders.Add(testOrder); customerDict.Add(0, custom);
+
             break;
         default:
             Console.WriteLine("Give a valid option.\n");
