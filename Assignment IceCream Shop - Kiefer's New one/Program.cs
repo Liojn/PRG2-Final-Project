@@ -1,8 +1,11 @@
 ﻿using Assignment_IceCream_Shop;
+using Microsoft.VisualBasic;
 using PRG2_Final_Project;
 using System;
 using System.Data;
 using System.Globalization;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Transactions;
@@ -382,7 +385,8 @@ void Menu()
     Console.WriteLine("[4]Create a new customer's order.");
     Console.WriteLine("[5]Display order details of a customer.");
     Console.WriteLine("[6]Modify Order Detail.");
-    Console.WriteLine("[7].");
+    Console.WriteLine("[7]Process an order and checkout");
+    Console.WriteLine("[8]Display monthly charged amounts breakdown & total charged amounts for the year");
 }
 
 
@@ -1059,6 +1063,212 @@ int printSelected(Customer wantedCustomer)
     return index;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Advanced Features 
+//Feature a
+
+//Process order and checkout
+
+void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Queue<Order> RegularQueue)
+{
+    try
+    {
+        Order iceCreamOrder = DequeueOrder(GoldQueue, RegularQueue);
+        if (iceCreamOrder != null)
+        {
+            double totalPrice = DisplayOrder(iceCreamOrder);
+            foreach (Customer customer in customerDict.Values)
+            {
+                if (customer.CurrentOrder != null && customer.CurrentOrder.Id == iceCreamOrder.Id)
+                {
+                    Console.WriteLine("Customer's Name: {0}", customer.Name);
+                    Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
+                    Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
+                    totalPrice = BirthdayPromo(customer, iceCreamOrder, totalPrice);
+                    PunchCardPromo(customer, iceCreamOrder, totalPrice);
+                    PointsRedemption(customer, totalPrice);
+                    MakePayment(customer, totalPrice);
+
+                    using (StreamWriter writer = new StreamWriter("orderPrice.csv"))
+                    {
+                        writer.WriteLine("Order ID", "Total Price");
+                        writer.WriteLine("{0}, {1}", customer.CurrentOrder.Id, totalPrice);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"An error occurred. {e.Message}");
+    }
+}
+
+Order DequeueOrder(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
+{
+    Order iceCreamOrder = null;
+    if (GoldQueue.Count != 0)
+    {
+        iceCreamOrder = GoldQueue.Dequeue();
+    }
+    else if (GoldQueue.Count == 0 && RegularQueue.Count != 0)
+    {
+        iceCreamOrder = RegularQueue.Dequeue();
+    }
+    else
+    {
+        Console.WriteLine("There are no orders currently.");
+    }
+    return iceCreamOrder;
+}
+
+static double DisplayOrder(Order iceCreamOrder)
+{
+    double totalPrice = 0;
+    Console.WriteLine("Ice Cream(s) in Order: ");
+    foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    {
+        Console.WriteLine(ice);
+        totalPrice += ice.CalculatePrice();
+    }
+    Console.WriteLine("The total amount is: ${0}", totalPrice);
+    return totalPrice;
+}
+
+static double BirthdayPromo(Customer customer, Order iceCreamOrder, double totalPrice)
+{
+    double highestPrice = 0;
+    if (customer.IsBirthday())
+    {
+        Console.WriteLine("Birthday Promotion Valid.");
+
+        foreach (IceCream ice in iceCreamOrder.iceCreamList)
+        {
+            if (ice.CalculatePrice() > highestPrice)
+            {
+                highestPrice = ice.CalculatePrice();
+            }
+            totalPrice -= highestPrice;
+        }
+        Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
+    }
+    return totalPrice;
+}
+
+static double PunchCardPromo(Customer customer, Order iceCreamOrder, double totalPrice)
+{
+    int memberPunchCard = customer.Rewards.PunchCards;
+    Console.WriteLine("Current Punch Card value: {0}", memberPunchCard);
+    if (memberPunchCard <= 10)
+    {
+        memberPunchCard += iceCreamOrder.iceCreamList.Count();
+        Console.WriteLine(iceCreamOrder.iceCreamList.Count());
+        Console.WriteLine("New Punch Card value: {0}", memberPunchCard);
+    }
+    else
+    {
+        memberPunchCard = 0;
+        double firstIceCream = iceCreamOrder.iceCreamList[0].CalculatePrice();
+        totalPrice -= firstIceCream;
+        Console.WriteLine("Punch Card is completed and has been reset.");
+        Console.WriteLine("Total Amount (after completion of Punch Card): ${0}", totalPrice);
+    }
+    return totalPrice;
+}
+
+static double PointsRedemption(Customer customer, double totalPrice)
+{
+    string membershipStatus = customer.Rewards.Tier;
+    int membershipPoints = customer.Rewards.Points;
+    if (membershipStatus == "Silver" || membershipStatus == "Gold")
+    {
+        Console.WriteLine("Redemption of points is valid.");
+        Console.Write("Enter the numbers of points to redeem: ");
+        int redeemPoints = Convert.ToInt32(Console.ReadLine());
+
+        if (redeemPoints > 0)
+        {
+            if (redeemPoints > membershipPoints)
+            {
+                Console.WriteLine("Points insufficient.");
+            }
+            else
+            {
+                membershipPoints -= redeemPoints;
+            }
+            Console.WriteLine("Membership Points (after redemption): ", customer.Rewards.Points);
+            totalPrice -= redeemPoints * 0.02;
+            Console.WriteLine("Total Amount (after Points redemption: ${0}", totalPrice);
+        }
+    }
+    else
+    {
+        Console.WriteLine("Redemption of points is not valid");
+    }
+    return totalPrice;
+}
+
+void MakePayment(Customer customer, double totalPrice)
+{
+    Console.Write("Enter any key to make payment: ");
+    string payKey = Console.ReadLine();
+
+    if (payKey != null)
+    {
+        int pointsToEarn = Convert.ToInt32(Math.Floor(totalPrice * 0.72));
+        customer.Rewards.AddPoints(pointsToEarn);
+
+        DateTime timeFulfilled = DateTime.Now;
+        customer.CurrentOrder.TimeFulfilled = timeFulfilled;
+
+        customer.orderHistory.Add(customer.CurrentOrder);
+        Console.WriteLine(customer.orderHistory);
+    }
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display monthly charged amounts breakdown & total charged amounts for the year
+//////////////////////////////////////////////////////// Feature b)
+void DisplayMonthlyCharges(List<Order> orders)
+{
+    string[] Months = { "Jan", "Feb", "Mar", "Apr","May", "June", "July","Aug","Sep", "Oct", "Nov", "Dec" };
+    Dictionary<string, double> MonthlyCharges = new Dictionary<string, double>();
+
+
+    Console.Write("Enter the year: ");
+    int year = Convert.ToInt32(Console.ReadLine());
+    foreach (Order o in orders)
+    {
+        if (o.TimeFulfilled.Value.Year == year)
+        {
+            bool Exists = false;
+            string Month = Months[o.TimeFulfilled.Value.Month - 1];
+            if (!MonthlyCharges.Keys.Contains(Month))
+            {
+                double revenue = o.CalculateTotal();
+                MonthlyCharges.Add(Month, revenue);
+            }
+            else
+            {
+                double revenue = o.CalculateTotal();
+                MonthlyCharges[Month] += revenue;
+            }
+        }
+    }
+    foreach (KeyValuePair<string,double> kvp in MonthlyCharges)
+    {
+        foreach (string s in Months)
+        {
+            if (s ==  kvp.Key)
+            {
+                Console.WriteLine("{0} {1}:  ${2}",kvp.Key,year,kvp.Value);
+                break;
+            }
+        }
+    }
+}
 
 
 
@@ -1220,14 +1430,10 @@ while (true)
             }
             break; 
         case 7:
-            DateTime dob = DateTime.Now;
-            Customer custom = new Customer("Ze Yu", 10, dob);
-            Order testOrder = new Order(5, DateTime.Now);
-            testOrder.iceCreamList.Add(new Cup("Cup", 1, new List<Flavour>(), new List<Topping>()));
-            testOrder.TimeFulfilled = DateTime.Now;
-            custom.orderHistory.Add(testOrder);
-            orders.Add(testOrder); customerDict.Add(0, custom);
-
+            Checkout(customerDict, GoldQueue, RegularQueue);
+            break;
+        case 8:
+            DisplayMonthlyCharges(orders);
             break;
         default:
             Console.WriteLine("Give a valid option.\n");
@@ -1237,3 +1443,13 @@ while (true)
 }
 
 
+void Test()
+{
+    DateTime dob = DateTime.Now;
+    Customer custom = new Customer("Ze Yu", 10, dob);
+    Order testOrder = new Order(5, DateTime.Now);
+    testOrder.iceCreamList.Add(new Cup("Cup", 1, new List<Flavour>(), new List<Topping>()));
+    testOrder.TimeFulfilled = DateTime.Now;
+    custom.orderHistory.Add(testOrder);
+    orders.Add(testOrder); customerDict.Add(0, custom);
+}

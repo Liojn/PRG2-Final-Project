@@ -801,7 +801,6 @@ namespace PRG2_Final_Project
 
         public double CalculateTotal()
         {
-            double mostExpensive = 0;
             double TotalPrice = 0;
             foreach (IceCream ice in iceCreamList)
             {

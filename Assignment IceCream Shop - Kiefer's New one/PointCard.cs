@@ -22,6 +22,7 @@ namespace PRG2_Final_Project
         {
             Points = p;
             PunchCards = pc;
+            Tier = "Ordinary";
         }
 
         public void AddPoints(int points)
@@ -38,9 +39,10 @@ namespace PRG2_Final_Project
                     Tier = "Silver";
                 }
             }
+
         }
 
-        public void ReedemPoints(int reedemPoint)
+        public void RedeemPoints(int reedemPoint)
         {
             while (true)
             {
@@ -75,4 +77,5 @@ namespace PRG2_Final_Project
 
 
     }
+
 }

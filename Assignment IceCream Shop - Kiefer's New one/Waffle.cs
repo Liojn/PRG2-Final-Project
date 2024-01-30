@@ -7,8 +7,9 @@ using Assignment_IceCream_Shop;
 
 namespace PRG2_Final_Project
 {
-    class Waffle : IceCream
+    class Waffle : IceCream //Cone class inherit method from IceCream class
     {
+        //Attributes and Properties
         private string waffleFlavour;
 
         public string WaffleFlavour
@@ -17,6 +18,7 @@ namespace PRG2_Final_Project
             set { waffleFlavour = value; }
         }
 
+        //Constructors
         public Waffle() { }
 
         public Waffle(string o, int s, List<Flavour> f, List<Topping> t, string w) : base(o, s, f, t)
@@ -24,9 +26,11 @@ namespace PRG2_Final_Project
             WaffleFlavour = w;
         }
 
+        //Method inherited from IceCream 
         public override double CalculatePrice()
         {
             double price = 0;
+            //Numbers of ice cream scoops
             if (Scoops == 1)
             {
                 price = 7;
@@ -37,11 +41,13 @@ namespace PRG2_Final_Project
             }
             else if (Scoops == 3)
             {
-                price = 9.50;
+                price = 9.5;
             }
 
+            //Number of toppings
             price += Toppings.Count * 1;
 
+            //Flavour of ice cream chosen
             for (int i = 0; i < Flavours.Count; i++)
             {
                 if (Flavours[i].Premium == true)
@@ -50,7 +56,8 @@ namespace PRG2_Final_Project
                 }
             }
 
-            if (WaffleFlavour == "Red Velvet" || WaffleFlavour == "charcoal" || WaffleFlavour == "pandan")
+            //Whether the waffle flavour the customer chosen is original or premium
+            if (WaffleFlavour == "Red Velvet" || WaffleFlavour == "Charcoal" || WaffleFlavour == "Pandan")
             {
                 price += 3;
             }
@@ -61,7 +68,7 @@ namespace PRG2_Final_Project
 
         public override string ToString()
         {
-            return base.ToString() + "\tWaffle Flavour: " + WaffleFlavour;
+            return base.ToString() + "Waffle Flavour: " + WaffleFlavour;
         }
     }
 }
