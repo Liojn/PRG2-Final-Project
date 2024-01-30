@@ -32,15 +32,15 @@ namespace Assignment_IceCream_Shop
             //Numbers of ice cream scoops
             if (Scoops == 1)
             {
-                price = 4;
+                price = 7;
             }
             else if (Scoops == 2)
             {
-                price = 5.5;
+                price = 8.5;
             }
             else if (Scoops == 3)
             {
-                price = 6.50;
+                price = 9.5;
             }
 
             //Number of toppings
@@ -56,9 +56,9 @@ namespace Assignment_IceCream_Shop
             }
 
             //Whether the waffle flavour the customer chosen is original or premium
-            if (WaffleFlavour == "Durian" || WaffleFlavour == "Ube" || WaffleFlavour == "Sea salt")
+            if (WaffleFlavour == "Red Velvet" || WaffleFlavour == "Charcoal" || WaffleFlavour == "Pandan")
             {
-                price += 2;
+                price += 3;
             }
 
             return price;

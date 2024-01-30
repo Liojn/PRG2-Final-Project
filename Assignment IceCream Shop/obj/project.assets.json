@@ -8,23 +8,23 @@
     "net6.0": []
   },
   "packageFolders": {
-    "C:\\Users\\kyew0\\.nuget\\packages\\": {},
+    "C:\\Users\\ME\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Documents\\PRG 2\\FINAL ASSIGNMENT PRG2\\PRG2 Final Project\\Assignment IceCream Shop\\Assignment IceCream Shop.csproj",
+      "projectUniqueName": "C:\\Users\\ME\\OneDrive\\Documents\\Ngee Ann Polytechnic\\NP 1.2\\Programming II (PRG2)\\Assignment\\Assignment - clone\\Assignment IceCream Shop\\Assignment IceCream Shop.csproj",
       "projectName": "Assignment IceCream Shop",
-      "projectPath": "C:\\Documents\\PRG 2\\FINAL ASSIGNMENT PRG2\\PRG2 Final Project\\Assignment IceCream Shop\\Assignment IceCream Shop.csproj",
-      "packagesPath": "C:\\Users\\kyew0\\.nuget\\packages\\",
-      "outputPath": "C:\\Documents\\PRG 2\\FINAL ASSIGNMENT PRG2\\PRG2 Final Project\\Assignment IceCream Shop\\obj\\",
+      "projectPath": "C:\\Users\\ME\\OneDrive\\Documents\\Ngee Ann Polytechnic\\NP 1.2\\Programming II (PRG2)\\Assignment\\Assignment - clone\\Assignment IceCream Shop\\Assignment IceCream Shop.csproj",
+      "packagesPath": "C:\\Users\\ME\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ME\\OneDrive\\Documents\\Ngee Ann Polytechnic\\NP 1.2\\Programming II (PRG2)\\Assignment\\Assignment - clone\\Assignment IceCream Shop\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\kyew0\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ME\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

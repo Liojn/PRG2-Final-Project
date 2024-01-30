@@ -39,9 +39,10 @@ namespace Assignment_IceCream_Shop
                     Tier = "Silver";
                 }
             }
+
         }
 
-        public void ReedemPoints(int reedemPoint)
+        public void RedeemPoints(int reedemPoint)
         {
             while (true)
             {
