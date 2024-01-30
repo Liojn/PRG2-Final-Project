@@ -1,6 +1,7 @@
 ﻿using Assignment_IceCream_Shop;
-using PRG2_Final_Project;
+//using PRG2_Final_Project;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Globalization;
 using System.Security;
@@ -88,7 +89,7 @@ void InitialiseCustomers(Dictionary<int, Customer> customerDict, List<Order> ord
                 int customerID = Convert.ToInt32(data[1]);
 
                 //Change data[2] into correct DateTime Format
-                DateTime dob = DateTime.ParseExact(data[2], "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime dob = DateTime.ParseExact(data[2], "dd-MM-yyyy", CultureInfo.InvariantCulture);
                 //Creating customer object
                 Customer customer = new Customer(customerName, customerID, dob);
 
@@ -302,6 +303,7 @@ void Menu()
     Console.WriteLine("[4]Create a new customer's order.");
     Console.WriteLine("[5]Display order details of a customer.");
     Console.WriteLine("[6]Modify Order Detail.");
+    Console.WriteLine("[7]Checkout.");
 }
 
 
@@ -986,7 +988,7 @@ InitialiseCustomers(customerDict, orders);
 InitaliseOrder(customerDict);
 InitaliseFlavour(FlavoursFile);
 InitaliseToppings(ToppingsFile);
-
+CreatingOrderPriceCSV();
 
 
 
@@ -1137,11 +1139,187 @@ while (true)
                 }
             }
             break;
+        case 7:
+            Checkout(customerDict, GoldQueue, RegularQueue);
+            break;
         default:
             Console.WriteLine("Give a valid option.\n");
             break;
+
 
        }
 }
 
 
+
+
+//Advanced Features 
+//Feature a
+
+//Process order and checkout
+
+void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Queue<Order> RegularQueue)
+{
+    try
+    {
+        Order iceCreamOrder = DequeueOrder(GoldQueue, RegularQueue);
+        if (iceCreamOrder != null)
+        {
+            double totalPrice = DisplayOrder(iceCreamOrder);
+            foreach (Customer customer in customerDict.Values)
+            {
+                if (customer.CurrentOrder.Id == iceCreamOrder.Id)
+                {
+                    Console.WriteLine("Customer's Name: {0}", customer.Name);
+                    Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
+                    Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
+                    totalPrice = BirthdayPromo(customer, iceCreamOrder, totalPrice);
+                    PunchCardPromo(customer, iceCreamOrder, totalPrice);
+                    PointsRedemption(customer, totalPrice);
+                    MakePayment(customer, totalPrice);
+
+                    using (StreamWriter writer = new StreamWriter("orderPrice.csv"))
+                    {
+                        writer.WriteLine("{0}, {1}", customer.CurrentOrder.Id, totalPrice);
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"An error occurred. {e.Message}");
+    }
+}
+
+Order DequeueOrder(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
+{
+    Order iceCreamOrder = null;
+    if(GoldQueue.Count != 0)
+    {
+        iceCreamOrder = GoldQueue.Dequeue();
+    }
+    else if(GoldQueue.Count == 0 && RegularQueue.Count != 0)
+    {
+        iceCreamOrder = RegularQueue.Dequeue();
+    }
+    else
+    {
+        Console.WriteLine("There are no orders currently.");
+    }
+    return iceCreamOrder;
+}
+
+static double DisplayOrder (Order iceCreamOrder)
+{
+    double totalPrice = 0;
+    Console.WriteLine("Ice Cream(s) in Order: ");
+    foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    {
+        Console.WriteLine(ice);
+        totalPrice += ice.CalculatePrice();
+    }
+    Console.WriteLine("The total amount is: ${0}", totalPrice);
+    return totalPrice;
+}
+
+static double BirthdayPromo (Customer customer, Order iceCreamOrder, double totalPrice)
+{
+    double highestPrice = 0;
+    if (customer.IsBirthday(DateTime.Now))
+    {
+        Console.WriteLine("Birthday Promotion Valid.");
+        
+        foreach (IceCream ice in iceCreamOrder.iceCreamList)
+        {
+            if (ice.CalculatePrice() > highestPrice)
+            {
+                highestPrice = ice.CalculatePrice();
+            }
+            totalPrice -= highestPrice;
+        }
+        Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
+    }
+    return totalPrice;
+}
+
+static double PunchCardPromo(Customer customer, Order iceCreamOrder, double totalPrice)
+{
+    int memberPunchCard = customer.Rewards.PunchCards;
+    Console.WriteLine("Current Punch Card value: {0}", memberPunchCard);
+    if (memberPunchCard <= 10)
+    {
+        memberPunchCard++;
+        Console.WriteLine("New Punch Card value: {0}", memberPunchCard);
+    }
+    else
+    {
+        memberPunchCard = 0;
+        double firstIceCream = iceCreamOrder.iceCreamList[0].CalculatePrice();
+        totalPrice -= firstIceCream;
+        Console.WriteLine("Punch Card is completed and has been reset.");
+        Console.WriteLine("Total Amount (after completion of Punch Card): ${0}", totalPrice);
+    }
+    return totalPrice;
+}
+
+static double PointsRedemption(Customer customer, double totalPrice)
+{
+    string membershipStatus = customer.Rewards.Tier;
+    int membershipPoints = customer.Rewards.Points;
+    if (membershipStatus == "Silver" || membershipStatus == "Gold")
+    {
+        Console.WriteLine("Redemption of points is valid.");
+        Console.Write("Enter the numbers of points to redeem: ");
+        int redeemPoints = Convert.ToInt32(Console.ReadLine());
+
+        if (redeemPoints > 0)
+        {
+            if (redeemPoints > membershipPoints)
+            {
+                Console.WriteLine("Points insufficient.");
+            }
+            else
+            {
+                membershipPoints -= redeemPoints;
+            }
+            Console.WriteLine("Membership Points (after redemption): ", customer.Rewards.Points);
+            totalPrice -= redeemPoints * 0.02;
+            Console.WriteLine("Total Amount (after Points redemption: ${0}", totalPrice);
+        }
+    }
+    else
+    {
+        Console.WriteLine("Redemption of points is not valid");
+    }
+    return totalPrice;
+}
+
+void MakePayment(Customer customer, double totalPrice)
+{
+    Console.Write("Enter any key to make payment: ");
+    string payKey = Console.ReadLine();
+
+    if(payKey != null)
+    {
+        int pointsToEarn = Convert.ToInt32(Math.Floor(totalPrice * 0.72));
+        customer.Rewards.AddPoints(pointsToEarn);
+
+        DateTime timeFulfilled = DateTime.Now;
+        customer.CurrentOrder.TimeFulfilled = timeFulfilled;
+
+        customer.orderHistory.Add(customer.CurrentOrder);
+        Console.WriteLine(customer.orderHistory);
+    }
+}
+
+//new csv append total price + order ID 
+void CreatingOrderPriceCSV()
+{
+    using (StreamWriter writer = new StreamWriter("orderPrice.csv"))
+    {
+        writer.WriteLine("Order ID", "Total Price");
+    }
+}
