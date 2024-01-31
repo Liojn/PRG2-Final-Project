@@ -28,7 +28,7 @@ namespace PRG2_Final_Project
         public void AddPoints(int points)
         {
             Points += points;
-            if (Tier != "Gold")
+            if (Tier != "Gold") // If not gold means thaat they can go up a tier.
             {
                 if (Points >= 100)
                 {

@@ -2,6 +2,7 @@
 using Microsoft.VisualBasic;
 using PRG2_Final_Project;
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -19,12 +20,12 @@ using System.Transactions;
 //=========================================================
 
 
-Dictionary<int, Customer> customerDict = new Dictionary<int, Customer>();
-List<Order> orders = new List<Order>();
-Queue<Order> RegularQueue = new Queue<Order>();
+Dictionary<int, Customer> customerDict = new Dictionary<int, Customer>(); // Dictionary of MemberID to Customer object
+List<Order> orders = new List<Order>(); // A list to store all the orders ever made
+Queue<Order> RegularQueue = new Queue<Order>(); // 
 Queue<Order> GoldQueue = new Queue<Order>();
-Dictionary<string, int> FlavoursFile = new Dictionary<string, int>();
-List<string> ToppingsFile = new List<string>();
+Dictionary<string, int> FlavoursFile = new Dictionary<string, int>(); // Dictionary of flavours of Flavour Name : Cost
+List<string> ToppingsFile = new List<string>(); // List of topping names
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,8 +93,8 @@ void InitialiseCustomers(Dictionary<int, Customer> customerDict, List<Order> ord
                 int customerID = Convert.ToInt32(data[1]);
 
                 //Change data[2] into correct DateTime Format
-                string[] dataFormats = { "dd/MM/yyy", "d/MM/yyy", "dd/M/yyyy" , "d/M/yyyy"};
-                DateTime dob = DateTime.ParseExact(data[2], dataFormats, CultureInfo.InvariantCulture);
+                string[] dataFormats = { "dd/MM/yyy", "d/MM/yyy", "dd/M/yyyy" , "d/M/yyyy"}; //// Possible formats the csv time could be.
+                DateTime dob = DateTime.ParseExact(data[2], dataFormats, CultureInfo.InvariantCulture); //// CultureInfo.invariantCulture means not  time is not culture sensitive
                 //Creating customer object
                 Customer customer = new Customer(customerName, customerID, dob);
 
@@ -136,14 +137,23 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
 
                 //Extracting Data
                 bool dippedCone = false;
+
                 int id = Convert.ToInt32(data[0]);
+
                 int MemberID = Convert.ToInt32(data[1]);
+
                 string Option = data[4];
+
                 int Scoops = Convert.ToInt32(data[5]);
+
+
                 string[] dateFormats = {  "MM/dd/yyyy h:mm:ss tt", "M/dd/yyyy h:mm:ss tt" , "MM/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm:ss tt" , "dd/MM/yyyy HH:mm", "dd/M/yyyy HH:mm", "d/MM/yyyy HH:mm", "d/M/yyyy HH:mm" };//////////// Possible formats.
                 DateTime TimeRecevied = DateTime.ParseExact(data[2], dateFormats, CultureInfo.InvariantCulture); /// Use possible formats to check whether data[2] lies within any of those formats
-                DateTime TimeFulfilled = DateTime.ParseExact(data[3], dateFormats, CultureInfo.InvariantCulture);
+                DateTime TimeFulfilled = DateTime.ParseExact(data[3], dateFormats, CultureInfo.InvariantCulture); /// Same for data[3]
+
+
                 bool premium = false;
+
                 string waffleFlavour = data[7];
 
 
@@ -153,16 +163,17 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                     dippedCone = Convert.ToBoolean(data[6].ToLower());
                 }
 
-                Order order = new Order(id, TimeRecevied);
+                Order order = new Order(id, TimeRecevied); // Create new order objecy
 
                 order.TimeFulfilled = TimeFulfilled;
+
                 for (int i = 8; i <= 10; i++)
                 {
                     bool noExist = false;
                     string Flavour = data[i];
-                    if (!string.IsNullOrEmpty(Flavour))
+                    if (!string.IsNullOrEmpty(Flavour)) // Checking if its NOT empty or null
                     {
-                        if (Flavour == "Durian" || Flavour == "Ube" || Flavour == "Sea Salt")
+                        if (Flavour == "Durian" || Flavour == "Ube" || Flavour == "Sea Salt") // Checking if premium
                         {
                             premium = true;
                         }
@@ -170,19 +181,19 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                         foreach (Flavour f in flavourList)
                         {
 
-                            if (f.Type == newFlavour.Type)
+                            if (f.Type == newFlavour.Type) // If Flavour exists already inside the list
                             {
                                 f.Quantity += 1;
-                                noExist = true;
+                                noExist = true; // Increment Quantity by 1
                             }
                         }
                         if (noExist == false)
                         {
-                            flavourList.Add(newFlavour);
+                            flavourList.Add(newFlavour);  // Else add to the list 
                         }
 ;
                     }
-                    else
+                    else // Break cause if null or empty, every subsequent flavour is also null or empty
                     {
                         break;
                     }
@@ -191,28 +202,30 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                 for (int j = 11; j < data.Count(); j++)
                 {
                     string Topping = data[j];
-                    if (!string.IsNullOrEmpty(Topping))
+                    if (!string.IsNullOrEmpty(Topping)) // Check if  NOT null or empty
                     {
                         Topping top = new Topping(Topping);
                         toppingsList.Add(top);
                     }
-                    else
+                    else 
                     {
-                        break;
+                        break; // Break cause, if null or empty all toppings behind also null or empty
                     }
                 }
+
                 int OrdersIndex = -1;
                 bool exists = false;
+
                 foreach (Order o in orders)
                 {
-                    if (o.Id == id)
+                    if (o.Id == id) // Checking if the ID exists already inside main order list.
                     {
-                        OrdersIndex = orders.IndexOf(o);
+                        OrdersIndex = orders.IndexOf(o); 
                         exists = true;
                     }
                 }
 
-                if (exists)
+                if (exists) // Cause if it does exists, we have to add iceCream to its IceCream List.
                 {
                     if (Option == "Waffle")
                     {
@@ -236,7 +249,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                         orders[OrdersIndex].iceCreamList.Add(ice);
                     }
                 }
-                else
+                else // Else if it dosent exist we use the order object we created and add to its ice cream list 
                 {
                     if (Option == "Waffle")
                     {
@@ -263,11 +276,11 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                     {
                         if (MemberID == kvp.Key)
                         {
-                            kvp.Value.orderHistory.Add(order);
+                            kvp.Value.orderHistory.Add(order); // Find its corresponding customer and add it their history.
                             break;
                         }
                     }
-                    orders.Add(order);
+                    orders.Add(order); // Then we append it to main order list.
                 }
                 
             }
@@ -283,11 +296,11 @@ void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
 {
     string FilePath = "customers.csv";
     string dataline = "";
-    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard";
-    using StreamWriter writer = new StreamWriter(FilePath, false);
+    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard"; // Header for the file
+    using StreamWriter writer = new StreamWriter(FilePath, false); // Overwriting whole file 
     {
         writer.WriteLine(Header);
-        foreach (Customer customer in customerDict.Values)
+        foreach (Customer customer in customerDict.Values) // Loop through customer list, writing them in order
         {
             dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
             writer.WriteLine(dataline);
@@ -304,14 +317,14 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
     string filepath = "orders.csv";
     using StreamWriter writer = new StreamWriter(filepath, false);
     {
-        writer.WriteLine("Id,MemberId,TimeReceived,TimeFulfilled,Option,Scoops,Dipped,WaffleFlavour,Flavour1,Flavour2,Flavour3,Topping1,Topping2,Topping3,Topping4");
+        writer.WriteLine("Id,MemberId,TimeReceived,TimeFulfilled,Option,Scoops,Dipped,WaffleFlavour,Flavour1,Flavour2,Flavour3,Topping1,Topping2,Topping3,Topping4"); // Header for orders.csv
         foreach (Order o in orders)
         {
             string MemberID = "";
             foreach (KeyValuePair<int,Customer> customer in customerDict)
             {
                 bool found = false;
-                 foreach (Order temp in customer.Value.orderHistory)
+                 foreach (Order temp in customer.Value.orderHistory) // Loop through customers orderHistory for find ID 
                 {
                     if (temp.Id == o.Id)
                     {
@@ -328,7 +341,7 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
             string TimeFulfilled = "";
             if (!string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled)))
             {
-                TimeFulfilled = o.TimeFulfilled?.ToString("MM/dd/yyyy HH:mm");
+                TimeFulfilled = o.TimeFulfilled?.ToString("MM/dd/yyyy HH:mm"); // Convert into format
             }
 
             foreach (IceCream ice in o.iceCreamList)
@@ -338,34 +351,35 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
                 string WaffleFlavour = "";
                 string Dipped = "";
                 List<string> fList = new List<string>();
+
                 foreach (Flavour f in ice.Flavours)
                 {
                     if (f.Quantity > 1)
                     {
-                        for (int i = 0; i < f.Quantity; i++)
+                        for (int i = 0; i < f.Quantity; i++) // Since when we append to order.csv if theres more than 1 quantity, we need to write multiple instances of that.
                         {
-                            fList.Add(f.Type);
+                            fList.Add(f.Type);  
                         }
-                    }else
+                    }else // If not we add.
                     {
                         fList.Add(f.Type);
                     }
                 }
                 if (fList.Count() < 3)
                 {
-                    for (int i = 0; i <= (3 - fList.Count()); i++)
+                    for (int i = 0; i <= (3 - fList.Count()); i++) // Since there must be 3 flavours. We will fill in the missing flavours with empty strings to join ltr on
                     {
                         fList.Add("");
                     }
                 }
                 List<string> tList = new List<string>();
-                foreach (Topping t in ice.Toppings)
+                foreach (Topping t in ice.Toppings) // Add toppings to a lis to join ltr 
                 {
                     tList.Add(t.Type);
                 }
                 if (tList.Count < 4)
                 {
-                    for (int i = 0; i <= (4 - tList.Count()); i++)
+                    for (int i = 0; i <= (4 - tList.Count()); i++) // since there must be 4 toppings. We will in the missing toppings with empty strings.
                     {
                         tList.Add("");
                     }
@@ -388,8 +402,8 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
                         Dipped = "False";
                     }
                 }
-                joinedFlavour = String.Join(",", fList);
-                joinedTopping = String.Join(",", tList);
+                joinedFlavour = String.Join(",", fList); // Combining the flavour list into a string. seperated by commas
+                joinedTopping = String.Join(",", tList);// Combining the topping 
                 writer.Write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n", o.Id, MemberID, o.TimeReceived, o.TimeFulfilled, ice.Option, ice.Scoops, Dipped, WaffleFlavour, joinedFlavour, joinedTopping);
             }
         }
@@ -399,7 +413,7 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Menu()
+void Menu() // menu
 {
     Console.WriteLine("==========Menu==========");
     Console.WriteLine("[0]Exit.");
@@ -427,8 +441,7 @@ void ListCustomer(Dictionary<int, Customer> customerDict)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-//Formatting the string for printing generalid method.
-string FormattingPrint(IceCream ice)
+string FormattingPrint(IceCream ice) // generalised method for formatting string 
 {
     string s = "";
     List<string> k = new List<string>();
@@ -440,23 +453,23 @@ string FormattingPrint(IceCream ice)
     {
         if (f.Premium == true)
         {
-            string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity;
-            k.Add(y);
+            string y = f.Type + "(Premium)" + " Quantity:  " + f.Quantity; // Adding a premium tag beside the Flavour name is it is a premium flavour
+            k.Add(y); // Add to list to join ltr
         }
         else
         {
             string y = f.Type + " Quantity: " + f.Quantity;
-            k.Add(y);
+            k.Add(y);// Add to list to join ltr
         }
 
     }
     foreach (Topping i in ice.Toppings)
     {
-        t.Add(i.Type);
+        t.Add(i.Type); // Add to list to join ltr
     }
-    if (ice.Toppings.Count == 0)
+    if (ice.Toppings.Count == 0) // if 0 
     {
-        t.Add("None");
+        t.Add("None"); // We print None
     }
 
     if (ice is Waffle)
@@ -472,13 +485,13 @@ string FormattingPrint(IceCream ice)
             mod = "Dipped";
         }
     }
-    joinedFlavour = String.Join(",", k.ToArray());
-    joinedTopping = String.Join(",", t.ToArray());
+    joinedFlavour = String.Join(",", k.ToArray()); // Joing the arrays seperated by ,
+    joinedTopping = String.Join(",", t.ToArray()); // joining the list seperated by ,
     s += "Option: " + ice.Option + "\tScoops: " + ice.Scoops + "\nModifications: " + mod + "\nFlavours: " + joinedFlavour + "\tToppings: " + joinedTopping + "\n\n";
-    return s;
+    return s; // Return the string to print in what ever functionn
 }
 
-void OrderPrint(Queue<Order> queue)///// Print orders.
+void OrderPrint(Queue<Order> queue)///// Print orders. Geenralised method for prinintg the orders in the queue 
 {
     foreach (Order o in queue)
     {
@@ -488,9 +501,9 @@ void OrderPrint(Queue<Order> queue)///// Print orders.
         {
             s += FormattingPrint(ice);
         }
-        if (string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled)))
+        if (string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled))) // Check if Null or Empty the TimeFulfilled
         {
-            TimeFulfilled = "Unfulfilled";
+            TimeFulfilled = "Unfulfilled"; // If it is , set it to unfulfilled
             Console.WriteLine("ID :{0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, TimeFulfilled, s);
         }
         else
@@ -507,23 +520,23 @@ void OrderPrint(Queue<Order> queue)///// Print orders.
 void ListCurrentOrders(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
 {
     Console.WriteLine("==========Gold Queue Orders==========");
-    OrderPrint(GoldQueue);
+    OrderPrint(GoldQueue); // Call geenralised method for prinint orders in queue 
     if (GoldQueue.Count == 0)
     {
-        Console.WriteLine("No orders yet.");
+        Console.WriteLine("No orders yet."); // no orders
     }
     Console.WriteLine("==========Regular Queue Orders==========");
-    OrderPrint(RegularQueue);
+    OrderPrint(RegularQueue);// Call geenralised method for prinint orders in queue 
     if (RegularQueue.Count == 0)
     {
-        Console.WriteLine("No orders yet.");
+        Console.WriteLine("No orders yet."); // no orders
     }
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////Print customers
-Customer printCustomers(Dictionary<int, Customer> customerDict)
+Customer printCustomers(Dictionary<int, Customer> customerDict) // Method for printing customers names and choosing one 
 {
     Console.WriteLine("Customers: ");
     foreach (Customer customer in customerDict.Values)
@@ -536,7 +549,7 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
         string option = Console.ReadLine().ToLower();
         Customer wantedCustomer = new Customer();
         bool found = false;
-        foreach (KeyValuePair<int, Customer> kvp in customerDict)
+        foreach (KeyValuePair<int, Customer> kvp in customerDict) // check dictionary for name
         {
             if (kvp.Value.Name.ToLower() == option)
             {
@@ -550,7 +563,7 @@ Customer printCustomers(Dictionary<int, Customer> customerDict)
         }
         else
         {
-            Console.WriteLine("Customer not found. Try again");
+            Console.WriteLine("Customer not found. Try again"); // Exception handling 
         }
     }
 }
@@ -686,6 +699,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
             {
                 RegularQueue.Enqueue(currentOrder);
             }
+
             kvp.Value.CurrentOrder = currentOrder;
             orders.Add(currentOrder);
             Console.WriteLine("Order has been placed successfully!\n");
@@ -741,7 +755,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                     if (s.ToLower() == wFlavour.ToLower())
                     {
                         WExists = true;
-                        wFlavour = s;break;
+                        wFlavour = s; break;
                     }
                 }
                 if (!WExists)
@@ -970,15 +984,15 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
 void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
-    Customer wantedCustomer = printCustomers(customerDict);
+    Customer wantedCustomer = printCustomers(customerDict); // Print customers first 
     Console.WriteLine("==========Current and Past Order Details==========");
     Console.WriteLine("Current Orders: ");
-    if (wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList.Count != 0)
+    if (wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList.Count != 0) // Check that the currentOrder is not null.
     {
         string s = "";
         foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
         {
-            s = FormattingPrint(ice);
+            s = FormattingPrint(ice); // Use generalised method to format the string
             Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
             Console.WriteLine();
         }
@@ -990,7 +1004,7 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 
 
     Console.WriteLine("Past Orders: ");
-    if (wantedCustomer.orderHistory.Count == 0)
+    if (wantedCustomer.orderHistory.Count == 0) /// No order history means no past orders
     {
         Console.WriteLine("Customer has no past orders");
     }
@@ -1002,7 +1016,7 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 
             foreach (IceCream ice in o.iceCreamList)
             {
-                c = FormattingPrint(ice);
+                c = FormattingPrint(ice);// Use generalised method to format the string
                 Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", o.Id, o.TimeReceived, o.TimeFulfilled, c);
                 Console.WriteLine();
             }
@@ -1019,9 +1033,9 @@ int printSelected(Customer wantedCustomer)
     List<IceCream> iceList = new List<IceCream>();
     try
     {
-        if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)// Check all 3 in case any of them is null.
+        if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)// Check all 3 in case any of them is null. The order is important.
         {
-            iceList = wantedCustomer.CurrentOrder.iceCreamList;
+            iceList = wantedCustomer.CurrentOrder.iceCreamList; // Extract the iceCreamList of the wanted customer 
         }
         else
         {
@@ -1047,21 +1061,22 @@ int printSelected(Customer wantedCustomer)
             return -1;
         }
     }
+
     int count = 1;
     string TimeFulfilled = "";
     Console.WriteLine("=================================Current Orders==========================================");
     foreach (IceCream ice in iceList)
     {
         string s = "";
-        s += FormattingPrint(ice);
-        if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
+        s += FormattingPrint(ice); // use generalised method to format string 
+        if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled))) // Check if TimeFulfilled is null.
         {
             TimeFulfilled = "Unfulfilled";
-            Console.WriteLine("[{0}] ID :{1,-5} Time Received: {2,-22} Time Fulfilled: {3,-22}{4,-22}", count,wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, TimeFulfilled, s);
+            Console.WriteLine("[{0}] ID :{1,-5} Time Received: {2,-22} Time Fulfilled: {3,-22}{4,-22}", count,wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, TimeFulfilled, s); // Print details along with index
         }
         else
         {
-            Console.WriteLine("[{0} ID :{1,-5} Time Received: {2,-22} Time Fulfilled: {3,-22}{4,-22}", count,wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
+            Console.WriteLine("[{0} ID :{1,-5} Time Received: {2,-22} Time Fulfilled: {3,-22}{4,-22}", count,wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s); // Print details along with index
         }
         Console.WriteLine();
         count++;
@@ -1072,7 +1087,7 @@ int printSelected(Customer wantedCustomer)
         try
         {
             Console.Write("Which Order to Modify?: ");
-            index = Convert.ToInt32(Console.ReadLine());
+            index = Convert.ToInt32(Console.ReadLine()); // Get the index of the order they want
             break;
         }
         catch (FormatException)
@@ -1109,20 +1124,23 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                     Console.WriteLine("Customer's Name: {0}", customer.Name);
                     Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
                     Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
-                    if (birthdayPromoGiven == false)
+                    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day && birthdayPromoGiven == false)
                     {
-                        BirthdayPromo(customer, iceCreamOrder, totalPrice);
+                        totalPrice = BirthdayPromo(customer, iceCreamOrder, totalPrice);
                         birthdayPromoGiven = true;
                     }
-                    PunchCardPromo(customer, iceCreamOrder, totalPrice);
-                    PointsRedemption(customer, totalPrice);
+                    totalPrice = PunchCardPromo(customer, iceCreamOrder, totalPrice);
+                    if (totalPrice > 0)
+                    {
+                        totalPrice = PointsRedemption(customer, totalPrice);
+                    }
                     MakePayment(customer, totalPrice);
                     string fileName = "orderPrice.csv";
                     if (!File.Exists(fileName))
                     {
-                        using (StreamWriter writer = new StreamWriter(fileName , false))
+                        using (StreamWriter writer = new StreamWriter(fileName, false))
                         {
-                            writer.WriteLine("{0},{1}","Order ID","Total Price");
+                            writer.WriteLine("{0},{1}", "Order ID", "Total Price");
                             writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice);
                         }
                     }
@@ -1138,7 +1156,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                 }
                 else
                 {
-                    continue;
+                    break;
                 }
             }
         }
@@ -1185,20 +1203,19 @@ static double DisplayOrder(Order iceCreamOrder)
 static double BirthdayPromo(Customer customer, Order iceCreamOrder, double totalPrice)
 {
     double highestPrice = 0;
-    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day)
-    {
-        Console.WriteLine("Birthday Promotion Valid.");
 
-        foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    Console.WriteLine("Birthday Promotion Valid.");
+
+    foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    {
+        if (ice.CalculatePrice() > highestPrice)
         {
-            if (ice.CalculatePrice() > highestPrice)
-            {
-                highestPrice = ice.CalculatePrice();
-            }
-            totalPrice -= highestPrice;
+            highestPrice = ice.CalculatePrice();
         }
-        Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
     }
+    totalPrice -= highestPrice;
+    Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
+
     return totalPrice;
 }
 
@@ -1208,7 +1225,13 @@ static double PunchCardPromo(Customer customer, Order iceCreamOrder, double tota
     Console.WriteLine("Current Punch Card value: {0}", memberPunchCard);
     if (memberPunchCard < 10)
     {
-        memberPunchCard++;
+        for (int i = 0; i < iceCreamOrder.iceCreamList.Count;i++)
+        {
+
+            customer.Rewards.Punch();
+            Console.WriteLine(customer.Rewards);
+;        }
+        memberPunchCard = customer.Rewards.PunchCards;
         Console.WriteLine("New Punch Card value: {0}", memberPunchCard);
     }
     else if (memberPunchCard == 10)
@@ -1288,10 +1311,12 @@ void MakePayment(Customer customer, double totalPrice)
 }
 
 
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display monthly charged amounts breakdown & total charged amounts for the year
 //////////////////////////////////////////////////////// Feature b)
 
-void ReadingOrderPrice(Dictionary<int, double> FinalPrice)
+void ReadingOrderPrice(Dictionary<int, double> FinalPrice) // Reading the file which has Order ID : final price.
 {
     string line;
     bool skip_first_line = false;
@@ -1305,7 +1330,7 @@ void ReadingOrderPrice(Dictionary<int, double> FinalPrice)
             }
 
             string[] data = line.Split(',');
-            FinalPrice.Add(Convert.ToInt32(data[0]), Convert.ToDouble(data[1]));
+            FinalPrice.Add(Convert.ToInt32(data[0]), Convert.ToDouble(data[1])); // Add the ID , Price to dictionary to use later
         }
     }
 }
@@ -1313,37 +1338,36 @@ void ReadingOrderPrice(Dictionary<int, double> FinalPrice)
 
 void DisplayMonthlyCharges(List<Order> orders)
 {
-    Dictionary<int, double> FinalPrice = new Dictionary<int, double>();
-    string[] Months = { "Jan", "Feb", "Mar", "Apr","May", "June", "July","Aug","Sep", "Oct", "Nov", "Dec" };
-    Dictionary<string, double> MonthlyCharges = new Dictionary<string, double>();
-    foreach (string M in Months)
+    Dictionary<int, double> FinalPrice = new Dictionary<int, double>(); // Dictionary to used to ID and corresponding price inside the ordersPrice.csv
+    string[] Months = { "Jan", "Feb", "Mar", "Apr","May", "June", "July","Aug","Sep", "Oct", "Nov", "Dec" }; // Array of months 
+    Dictionary<string, double> MonthlyCharges = new Dictionary<string, double>();// Dictionary to used to Store Months and corresponding revenue.
+    foreach (string M in Months) // Looping through the months array
     {
-        MonthlyCharges.Add(M, 0);
+        MonthlyCharges.Add(M, 0); // Creating a default dictionary {Jan : 0} ... 
     }
     while (true)
     {
         try
         {
             Console.Write("Enter the year: ");
-            int year = Convert.ToInt32(Console.ReadLine());
-            if (File.Exists("ordersPrice.csv"))
+            int year = Convert.ToInt32(Console.ReadLine()); 
+            if (File.Exists("ordersPrice.csv")) // Checking of the ordersPrice csv exists.
             {
-                ReadingOrderPrice(FinalPrice);
+                ReadingOrderPrice(FinalPrice); // if it does call it and updated the FinalPrice Dict
             }
 
             foreach (Order o in orders)
             {
-                if (o.TimeFulfilled.Value.Year == year)
+                if (o.TimeFulfilled.Value.Year == year) // Check the year the order was fulfilled
                 {
                     bool Exists = false;
-                    string Month = Months[o.TimeFulfilled.Value.Month - 1];
-                    if (MonthlyCharges.Keys.Contains(Month))
+                    string Month = Months[o.TimeFulfilled.Value.Month - 1]; // Extracting the Month that it happened. if its jan, [o.TimeFulfilled.Value.Month returns 1. So - 1 will become 0.
                     {
-                        if (FinalPrice.Keys.Contains(o.Id))
+                        if (FinalPrice.Keys.Contains(o.Id)) // Checking if the FinalPrice dictionary key contains the ID. If it use the the price there instead
                         {
                             MonthlyCharges[Month] += FinalPrice[o.Id];
                         }
-                        else
+                        else // If not , calculate the revenue using the method
                         {
                             double revenue = o.CalculateTotal();
                             MonthlyCharges[Month] += revenue;
@@ -1352,17 +1376,20 @@ void DisplayMonthlyCharges(List<Order> orders)
 
                 }
             }
+            double Total = 0;
             foreach (KeyValuePair<string, double> kvp in MonthlyCharges)
             {
                 foreach (string s in Months)
                 {
                     if (s == kvp.Key)
                     {
-                        Console.WriteLine("{0} {1}:  ${2}", kvp.Key, year, kvp.Value);
+                        Total += kvp.Value;
+                        Console.WriteLine("{0,-5}{1}:  ${2}", kvp.Key, year, kvp.Value); // printing 
                         break;
                     }
                 }
             }
+            Console.WriteLine("Total: ${0}", Total);
             return;
         }
         catch (FormatException)
@@ -1407,7 +1434,7 @@ while (true)
     Console.WriteLine();
     if (option == 0)
     {
-        UpdateCustomerCSV(customerDict);
+        UpdateCustomerCSV(customerDict); // When press 0 update the customer.csv
         Console.WriteLine("Exited");
         break;
     }
@@ -1449,25 +1476,26 @@ while (true)
                     Console.WriteLine("Enter a valid option.\n");
                 }
             }
+
             int index = -1;
             bool Updated = false;
             switch (modIceCreamChoice)
             {
                 case 1:
-                    index = printSelected(wantedCustomer);
+                    index = printSelected(wantedCustomer); // print 
                     if (index == -1)
                     {
                         break;
                     }
-                    wantedCustomer.CurrentOrder.ModifyIceCream(index);
+                    wantedCustomer.CurrentOrder.ModifyIceCream(index);// CAll the mpdofu ice cream method from class.
                     Updated = true;
                     break;
                 case 2:
-                    if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null)
+                    if (wantedCustomer != null && wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList != null) // Have to check if its not null
                     {
 
-                        IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder);
-                        wantedCustomer.CurrentOrder.AddIceCream(newIce);
+                        IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, wantedCustomer.CurrentOrder); // Call the creating of ice Cream method
+                        wantedCustomer.CurrentOrder.AddIceCream(newIce); // use the class method to add to currentOrder IceCream list
                         Updated = true;
                     }
                     else
@@ -1481,13 +1509,13 @@ while (true)
                     {
                         break;
                     }
-                    if (wantedCustomer.CurrentOrder.iceCreamList.Count() == 1)
+                    if (wantedCustomer.CurrentOrder.iceCreamList.Count() == 1) // Check whetehr can delete
                     {
                         Console.WriteLine("Cannot have zero ice creams in an order");
                     }
                     else
                     {
-                        wantedCustomer.CurrentOrder.DeleteIceCream(index);
+                        wantedCustomer.CurrentOrder.DeleteIceCream(index); // Call the method from class to delete iceCream from current order ice cream list.
                         Updated = true;
                     }
                     break;
@@ -1499,9 +1527,9 @@ while (true)
             if (Updated)
             {
                 Console.WriteLine("=============================================================================================Updated Order=============================================================================================");
-                foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
+                foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList) // print new order details
                 {
-                    string s = FormattingPrint(ice);
+                    string s = FormattingPrint(ice); // use generalised method to get string
                     if (string.IsNullOrEmpty(Convert.ToString(wantedCustomer.CurrentOrder.TimeFulfilled)))
                     {
                         string TimeFulfilled = "Unfulfilled";
@@ -1517,13 +1545,13 @@ while (true)
                 {
                     if (o.Id == wantedCustomer.CurrentOrder.Id)
                     {
-                        OrdersIndex = orders.IndexOf(o);
+                        OrdersIndex = orders.IndexOf(o); // getting index of the old order that got modified
                         break;
                     }
                 }
                 if (OrdersIndex != -1)
                 {
-                    orders[OrdersIndex] = wantedCustomer.CurrentOrder;
+                    orders[OrdersIndex] = wantedCustomer.CurrentOrder; // Updating main order list with the old order to the new order that got modified
                 }
             }
             break; 

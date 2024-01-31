@@ -34,7 +34,7 @@ namespace PRG2_Final_Project
 
 
 
-        private Dictionary<string, int> InitaliseFlavour()
+        private Dictionary<string, int> InitaliseFlavour() // Reading the flavours file, So i can store in to a dictionary Flavour Name : Cost
         {
             Dictionary<string, int> FlavoursFile = new Dictionary<string, int>();
             string line;
@@ -57,7 +57,7 @@ namespace PRG2_Final_Project
             return FlavoursFile;
         }
 
-        private List<string> InitaliseToppings()
+        private List<string> InitaliseToppings() // Reading topping list store into a list
         {
             List<string> ToppingsFile = new List<string>();
             string line;
@@ -80,9 +80,8 @@ namespace PRG2_Final_Project
             return ToppingsFile;
         }
 
-        private IceCream ModifyOption(IceCream modIceCream)
+        private IceCream ModifyOption(IceCream modIceCream) // Method to modify option
         {
-            string[] waf = { "Original", "Red velvet", "Charcoal", "Pandan" };
            
             while (true)
             {
@@ -99,15 +98,16 @@ namespace PRG2_Final_Project
                     {
                         case 0:
                             break;
-                        case 1 when modIceCream is not Cup:
-                            Cup CupIceCream = new Cup("Cup", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings);
+                        case 1 when modIceCream is not Cup: // not cup means other options, dont allow to change cup to cup
+                            Cup CupIceCream = new Cup("Cup", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings); // IceCream cup object
                             Console.WriteLine("Option changed to Cup!");
                             return CupIceCream;
-                        case 2 when modIceCream is not Cone:
+
+                        case 2 when modIceCream is not Cone: // not cone means other options, dont allow cone to cone
                             bool dipped = false;
                             while (true)
                             {
-                                Console.Write("Dipped? [Y/N]: ");
+                                Console.Write("Dipped? [Y/N]: "); // ask if dip
                                 string dip = Console.ReadLine();
                                 if (dip.ToLower() == "y")
                                 {
@@ -124,29 +124,33 @@ namespace PRG2_Final_Project
                                 }
                             }
                         
-                            Cone ConeIceCream = new Cone("Cone", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, dipped);
+                            Cone ConeIceCream = new Cone("Cone", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, dipped); // new cone object
                             Console.WriteLine("Option changed to Cone!");
                             return ConeIceCream;
-                        case 3 when modIceCream is not Waffle:
-                            string[] WFlavours = { "Original", "Red velvet", "Charcoal", "Pandan" };
+
+                        case 3 when modIceCream is not Waffle: // not waffle means other options , dont allow waffle to waffle
+                            string[] WFlavours = { "Original", "Red velvet", "Charcoal", "Pandan" }; // array of waffle flavours
                             Console.WriteLine("Available Flavours: ");
                             foreach (string s in WFlavours)
                             {
-                                Console.Write("{0,-15}", s);
+                                Console.Write("{0,-15}", s); // print waffle flavours
                             }
                             Console.WriteLine();
                             Console.Write("What flavour of waffle?: ");
                             string wFlav = Console.ReadLine();
+
                             foreach (string s in WFlavours)
                             {
-                                if (s.ToLower() == wFlav.ToLower())
+                                if (s.ToLower() == wFlav.ToLower())//Find waffle flavour in array to check
                                 {
                                     wFlav = s; break;
                                 }
                             }
-                            Waffle WafIceCream = new Waffle("Waffle", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, wFlav);
+
+                            Waffle WafIceCream = new Waffle("Waffle", modIceCream.Scoops, modIceCream.Flavours, modIceCream.Toppings, wFlav);// new waffle objecy
                             Console.WriteLine("Option changed to Waffle!");
                             return WafIceCream;
+
                         default:
                             Console.WriteLine("Enter a valid option.\n");
                             break;
@@ -157,14 +161,12 @@ namespace PRG2_Final_Project
                     Console.WriteLine("Enter a valid number");
                 }
             }
-
-            return modIceCream;
-
         }
+
 
         private IceCream ModifyScoops(IceCream modIceCream)
         {
-            Dictionary<string, int> Flavours = InitaliseFlavour();
+            Dictionary<string, int> Flavours = InitaliseFlavour(); // create the flavour dict using method
             int Scoops = -1;
 
             while (true)
@@ -178,6 +180,7 @@ namespace PRG2_Final_Project
                     Console.Write("Enter your option: ");
                     Scoops = Convert.ToInt32(Console.ReadLine());
                     Console.WriteLine();
+
                     switch (Scoops)
                     {
                         case 0:
@@ -188,17 +191,17 @@ namespace PRG2_Final_Project
                             {
                                 if (modIceCream.Scoops == 1)
                                 {
-                                    Console.WriteLine("Cannot Remove Scoops");
+                                    Console.WriteLine("Cannot Remove Scoops"); 
                                     break;
                                 }
 
                                 Console.WriteLine("Your flavour(s): ");
-                                foreach (Flavour f in modIceCream.Flavours)
+                                foreach (Flavour f in modIceCream.Flavours) // print user flavours
                                 {
                                     string Premium = "No";
                                     string s = "";
                                     s += "Flavour: " + f.Type + "\tPremium: " + Premium + "\tQuantity: " + f.Quantity;
-                                    if (f.Premium)
+                                    if (f.Premium) // Check if premium flavour 
                                     {
                                         Premium = "Yes";
                                     }
@@ -211,11 +214,11 @@ namespace PRG2_Final_Project
                                     string RemoveF = Console.ReadLine();
                                     bool found = false;
 
-                                    for (int j = 0; j < modIceCream.Flavours.Count(); j++)
+                                    for (int j = 0; j < modIceCream.Flavours.Count(); j++) // loop through users flavours
                                     {
-                                        if (modIceCream.Flavours[j].Type.ToLower() == RemoveF.ToLower())
+                                        if (modIceCream.Flavours[j].Type.ToLower() == RemoveF.ToLower()) // and remove it 
                                         {
-                                            if (modIceCream.Flavours[j].Quantity == 1)
+                                            if (modIceCream.Flavours[j].Quantity == 1) // theres only 1 quantity remove from list
                                             {
                                                 Console.WriteLine("Flavour removed {0}", modIceCream.Flavours[j].Type);
                                                 modIceCream.Scoops--;
@@ -223,7 +226,7 @@ namespace PRG2_Final_Project
                                                 found = true;
                                                 break;
                                             }
-                                            else
+                                            else // else -1 the quantity
                                             {
                                                 modIceCream.Scoops--;
                                                 modIceCream.Flavours[j].Quantity -= 1;
@@ -233,7 +236,7 @@ namespace PRG2_Final_Project
                                         }
                                     }
 
-                                    if (!found)
+                                    if (!found) 
                                     {
                                         Console.WriteLine("Flavour not found. Enter a valid flavour.");
                                         continue;
@@ -255,18 +258,18 @@ namespace PRG2_Final_Project
                                 {
                                     if (modIceCream.Scoops == 3)
                                     {
-                                        Console.WriteLine("Cannot Add Scoops");
+                                        Console.WriteLine("Cannot Add Scoops"); // max number of scoops per ice cream
                                         break;
                                     }
                                     modIceCream.Scoops += 1;
                                     bool premium = false;
                                     Console.WriteLine("Flavour List: ");
-                                    foreach (KeyValuePair<string, int> kvp in Flavours)
+                                    foreach (KeyValuePair<string, int> kvp in Flavours) // printing all the flavours
                                     {
                                         string y = kvp.Key;
                                         if (kvp.Value != 0)
                                         {
-                                            y += "(Premium)";
+                                            y += "(Premium)"; // Add premium tag next to flavour if premium
                                         }
                                         Console.WriteLine($"-{y}");
                                     }
