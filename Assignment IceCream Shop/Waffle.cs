@@ -3,27 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assignment_IceCream_Shop;
 
-namespace Assignment_IceCream_Shop
+namespace PRG2_Final_Project
 {
     class Waffle : IceCream //Cone class inherit method from IceCream class
     {
         //Attributes and Properties
-		private string waffleFlavour;
+        private string waffleFlavour;
 
-		public string WaffleFlavour
-		{
-			get { return waffleFlavour; }
-			set { waffleFlavour = value; }
-		}
+        public string WaffleFlavour
+        {
+            get { return waffleFlavour; }
+            set { waffleFlavour = value; }
+        }
 
         //Constructors
-		public Waffle() { }
+        public Waffle() { }
 
-		public Waffle(string o, int s, List<Flavour> f, List<Topping> t, string w) : base(o, s, f, t)
-		{
-			WaffleFlavour = w;
-		}
+        public Waffle(string o, int s, List<Flavour> f, List<Topping> t, string w) : base(o, s, f, t)
+        {
+            WaffleFlavour = w;
+        }
 
         //Method inherited from IceCream 
         public override double CalculatePrice()
@@ -66,8 +67,8 @@ namespace Assignment_IceCream_Shop
         }
 
         public override string ToString()
-		{
-			return base.ToString() + "Waffle Flavour: " + WaffleFlavour;
-		}
+        {
+            return base.ToString() + "Waffle Flavour: " + WaffleFlavour;
+        }
     }
 }

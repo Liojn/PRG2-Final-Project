@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace Assignment_IceCream_Shop
+using Assignment_IceCream_Shop;
+namespace PRG2_Final_Project
 {
     class PointCard
     {
@@ -18,7 +18,7 @@ namespace Assignment_IceCream_Shop
 
         public PointCard() { }
 
-        public PointCard(int p,int pc)
+        public PointCard(int p, int pc)
         {
             Points = p;
             PunchCards = pc;
@@ -55,7 +55,7 @@ namespace Assignment_IceCream_Shop
                     Points -= reedemPoint;
                 }
             }
-            
+
         }
 
         public void Punch()
@@ -66,15 +66,16 @@ namespace Assignment_IceCream_Shop
             }
             else
             {
-                PunchCards = 0; 
+                PunchCards = 0;
             }
         }
 
         public override string ToString()
         {
-            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier); 
+            return ("Points: " + Points + "\tPunch Card: " + punchCard + "\tTier: " + Tier);
         }
 
 
     }
+
 }
