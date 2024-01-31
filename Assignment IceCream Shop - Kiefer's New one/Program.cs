@@ -650,53 +650,57 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
     int id = 0;
     Order currentOrder = new Order();
 
-    if (orders.Count > 0)
+    foreach (var kvp in customerDict)
     {
-        id = orders[orders.Count - 1].Id + 1;
+        if (orders.Count > 0 && kvp.Value.Name == name)
+        {
+            if (kvp.Value.CurrentOrder != null)
+            {
+                id = kvp.Value.CurrentOrder.Id;
+            }
+            else
+            {
+                id = orders[orders.Count - 1].Id + 1;
+
+            }
+        }
     }
     foreach (var kvp in customerDict)
     {
         if (kvp.Value.Name == name)
         {
-            if (kvp.Value.CurrentOrder != null)
+            kvp.Value.MakeOrder();
+            kvp.Value.CurrentOrder.Id = id;
+            currentOrder = kvp.Value.CurrentOrder;
+
+            IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+            currentOrder.iceCreamList.Add(newIce);
+
+
+            while (currentOrder.iceCreamList.Count() < 3)
             {
-                Console.WriteLine("Order has already been created.");
+                while (true)
+                {
+                    Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
+                    string addIceCreamChoice = Console.ReadLine();
+
+                    if (addIceCreamChoice.ToUpper() == "Y")
+                    {
+
+                        newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+                        currentOrder.iceCreamList.Add(newIce);
+                    }
+                    else if (addIceCreamChoice.ToUpper() == "N")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter [Y/N].");
+                    }
+                }
                 break;
             }
-            else
-            {
-                kvp.Value.MakeOrder();
-                kvp.Value.CurrentOrder.Id = id;
-                currentOrder = kvp.Value.CurrentOrder;
-
-                IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-                currentOrder.iceCreamList.Add(newIce);
-
-
-                while (currentOrder.iceCreamList.Count() < 3)
-                {
-                    while (true)
-                    {
-                        Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
-                        string addIceCreamChoice = Console.ReadLine();
-
-                        if (addIceCreamChoice.ToUpper() == "Y")
-                        {
-
-                            newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-                            currentOrder.iceCreamList.Add(newIce);
-                        }
-                        else if (addIceCreamChoice.ToUpper() == "N")
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Enter [Y/N].");
-                        }
-                    }
-                    break;
-                }
 
             if (kvp.Value.Rewards.Tier == "Gold")
             {
@@ -706,13 +710,12 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
             {
                 RegularQueue.Enqueue(currentOrder);
             }
+
             kvp.Value.CurrentOrder = currentOrder;
             orders.Add(currentOrder);
             Console.WriteLine("Order has been placed successfully!\n");
 
-                break;
-            }
-
+            break;
         }
     }
 }
