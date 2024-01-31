@@ -1,51 +1,54 @@
-﻿using System;
+﻿using Assignment_IceCream_Shop;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PRG2_Final_Project;
-namespace Assignment_IceCream_Shop
+using static System.Formats.Asn1.AsnWriter;
+
+namespace PRG2_Final_Project
 {
-    class Cup : IceCream //Cone class inherit method from IceCream class
+    class Cup : IceCream
     {
-        //Constructors
         public Cup() { }
         public Cup(string o, int s, List<Flavour> f, List<Topping> t) : base(o, s, f, t) { }
 
-
-        //Method inherited from IceCream
         public override double CalculatePrice()
         {
             double price = 0;
-            //Numbers of ice cream scoops 
             if (Scoops == 1)
             {
                 price = 4;
             }
-            else if(Scoops == 2)
+            else if (Scoops == 2)
             {
                 price = 5.5;
             }
-            else if(Scoops == 3)
+            else if (Scoops == 3)
             {
                 price = 6.50;
             }
-
-            //Numbers of toppings
             price += Toppings.Count * 1;
 
-            //Flavours of ice cream chosen
             for (int i = 0; i < Flavours.Count; i++)
             {
                 if (Flavours[i].Premium == true)
                 {
-                    price += 2;
+                    if (Flavours[i].Quantity > 1)
+                    {
+                        price += 2 * Flavours[i].Quantity;
+                    }
+                    else
+                    {
+                        price += 2;
+                    }
                 }
             }
             return price;
 
         }
-        
+
         public override string ToString()
         {
             return base.ToString();
