@@ -1,34 +1,33 @@
-﻿using System;
+﻿using Assignment_IceCream_Shop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PRG2_Final_Project;
-namespace Assignment_IceCream_Shop
+using static System.Formats.Asn1.AsnWriter;
+
+namespace PRG2_Final_Project
 {
-    class Cone : IceCream //Cone class inherit method from IceCream class
+
+    class Cone : IceCream
     {
-        //Attributes and Properties
-		private bool dipped;
+        private bool dipped;
 
-		public bool Dipped
-		{
-			get { return dipped; }
-			set { dipped = value; }
-		}
+        public bool Dipped
+        {
+            get { return dipped; }
+            set { dipped = value; }
+        }
 
-        //Constructors
-		public Cone() { }
-		public Cone(string o, int s, List<Flavour> f, List<Topping> t, bool d) : base (o, s, f, t)
-		{
-			Dipped = d;
-		}
+        public Cone() { }
+        public Cone(string o, int s, List<Flavour> f, List<Topping> t, bool d) : base(o, s, f, t)
+        {
+            Dipped = d;
+        }
 
-        //Method inherited from IceCream 
         public override double CalculatePrice()
         {
-            double price = 0; 
-            //Numbers of ice cream scoops 
+            double price = 0;
             if (Scoops == 1)
             {
                 price = 4;
@@ -41,20 +40,23 @@ namespace Assignment_IceCream_Shop
             {
                 price = 6.50;
             }
-
-            //Numbers of toppings
             price += Toppings.Count * 1;
 
-            //Flavours of ice cream chosen
             for (int i = 0; i < Flavours.Count; i++)
             {
                 if (Flavours[i].Premium == true)
                 {
-                    price += 2;
+                    if (Flavours[i].Quantity > 1)
+                    {
+                        price += 2 * Flavours[i].Quantity;
+                    }
+                    else
+                    {
+                        price += 2;
+                    }
                 }
             }
 
-            //Whether the customer choose a chocolate dipped cone
             if (Dipped == true)
             {
                 price += 2;
@@ -63,9 +65,10 @@ namespace Assignment_IceCream_Shop
             return price;
 
         }
+
         public override string ToString()
         {
-            return base.ToString() + "Dipped: " + Dipped;
+            return base.ToString() + "\tDipped: " + Dipped;
         }
 
 
