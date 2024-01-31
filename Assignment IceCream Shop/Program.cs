@@ -686,6 +686,7 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
             {
                 RegularQueue.Enqueue(currentOrder);
             }
+
             kvp.Value.CurrentOrder = currentOrder;
             orders.Add(currentOrder);
             Console.WriteLine("Order has been placed successfully!\n");
@@ -1138,7 +1139,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                 }
                 else
                 {
-                    continue;
+                    break;
                 }
             }
         }
@@ -1194,8 +1195,8 @@ static double BirthdayPromo(Customer customer, Order iceCreamOrder, double total
         {
             highestPrice = ice.CalculatePrice();
         }
-        totalPrice -= highestPrice;
     }
+    totalPrice -= highestPrice;
     Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
     
     return totalPrice;

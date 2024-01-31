@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="C:\Users\ME\OneDrive\Documents\Ngee Ann Polytechnic\NP 1.2\Programming II %28PRG2%29\New Assignment\not finalized\PRG2-Final-Project-master\Assignment IceCream Shop\Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="customers.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
