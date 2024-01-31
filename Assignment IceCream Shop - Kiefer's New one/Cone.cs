@@ -46,7 +46,14 @@ namespace PRG2_Final_Project
             {
                 if (Flavours[i].Premium == true)
                 {
-                    price += 2;
+                    if (Flavours[i].Quantity > 1)
+                    {
+                        price += 2 * Flavours[i].Quantity;
+                    }
+                    else
+                    {
+                        price += 2;
+                    }
                 }
             }
 

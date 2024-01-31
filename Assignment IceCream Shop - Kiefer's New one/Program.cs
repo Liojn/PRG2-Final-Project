@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Transactions;
 
 
+
 //==========================================================
 // Student Number : S10259865
 // Student Name : Kiefer Yew
@@ -91,7 +92,8 @@ void InitialiseCustomers(Dictionary<int, Customer> customerDict, List<Order> ord
                 int customerID = Convert.ToInt32(data[1]);
 
                 //Change data[2] into correct DateTime Format
-                DateTime dob = DateTime.ParseExact(data[2], "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                string[] dataFormats = { "dd/MM/yyy", "d/MM/yyy", "dd/M/yyyy" , "d/M/yyyy"};
+                DateTime dob = DateTime.ParseExact(data[2], dataFormats, CultureInfo.InvariantCulture);
                 //Creating customer object
                 Customer customer = new Customer(customerName, customerID, dob);
 
@@ -129,7 +131,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
             }
             else
             {
-                //27/10/2023 13:28
+
                 string[] data = line.Split(",");
 
                 //Extracting Data
@@ -138,10 +140,14 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                 int MemberID = Convert.ToInt32(data[1]);
                 string Option = data[4];
                 int Scoops = Convert.ToInt32(data[5]);
-                DateTime TimeRecevied = DateTime.ParseExact(data[2], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
-                DateTime TimeFulfilled = DateTime.ParseExact(data[3], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+                string[] dateFormats = {  "MM/dd/yyyy h:mm:ss tt", "M/dd/yyyy h:mm:ss tt" , "MM/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm:ss tt" , "dd/MM/yyyy HH:mm", "dd/M/yyyy HH:mm", "d/MM/yyyy HH:mm", "d/M/yyyy HH:mm" };//////////// Possible formats.
+                DateTime TimeRecevied = DateTime.ParseExact(data[2], dateFormats, CultureInfo.InvariantCulture); /// Use possible formats to check whether data[2] lies within any of those formats
+                DateTime TimeFulfilled = DateTime.ParseExact(data[3], dateFormats, CultureInfo.InvariantCulture);
                 bool premium = false;
                 string waffleFlavour = data[7];
+
+
+
                 if (Option == "Cone")
                 {
                     dippedCone = Convert.ToBoolean(data[6].ToLower());
@@ -182,7 +188,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
                     }
                 }
 
-                for (int j = 11; j <= 14; j++)
+                for (int j = 11; j < data.Count(); j++)
                 {
                     string Topping = data[j];
                     if (!string.IsNullOrEmpty(Topping))
@@ -270,6 +276,7 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
 }
 
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
 
 void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
@@ -293,6 +300,7 @@ void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
 
 void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
 {
+
     string filepath = "orders.csv";
     using StreamWriter writer = new StreamWriter(filepath, false);
     {
@@ -300,14 +308,14 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
         foreach (Order o in orders)
         {
             string MemberID = "";
-            foreach (Customer customer in customerDict.Values)
+            foreach (KeyValuePair<int,Customer> customer in customerDict)
             {
                 bool found = false;
-                 foreach (Order temp in customer.orderHistory)
+                 foreach (Order temp in customer.Value.orderHistory)
                 {
                     if (temp.Id == o.Id)
                     {
-                        MemberID = Convert.ToString(customer.MemberId);
+                        MemberID = Convert.ToString(customer.Key);
                         found = true;
                         break;
                     }
@@ -320,7 +328,7 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
             string TimeFulfilled = "";
             if (!string.IsNullOrEmpty(Convert.ToString(o.TimeFulfilled)))
             {
-                TimeFulfilled = o.TimeFulfilled?.ToString("dd/MM/yyyy HH:mm");
+                TimeFulfilled = o.TimeFulfilled?.ToString("MM/dd/yyyy HH:mm");
             }
 
             foreach (IceCream ice in o.iceCreamList)
@@ -332,21 +340,37 @@ void UpdateOrderCSV(List<Order> orders, Dictionary<int,Customer> customerDict)
                 List<string> fList = new List<string>();
                 foreach (Flavour f in ice.Flavours)
                 {
-                    fList.Add(f.Type);
+                    if (f.Quantity > 1)
+                    {
+                        for (int i = 0; i < f.Quantity; i++)
+                        {
+                            fList.Add(f.Type);
+                        }
+                    }else
+                    {
+                        fList.Add(f.Type);
+                    }
                 }
-                if (fList.Count <= 3)
+                if (fList.Count() < 3)
                 {
-                    fList.Add("");
+                    for (int i = 0; i <= (3 - fList.Count()); i++)
+                    {
+                        fList.Add("");
+                    }
                 }
                 List<string> tList = new List<string>();
                 foreach (Topping t in ice.Toppings)
                 {
                     tList.Add(t.Type);
                 }
-                if (tList.Count <= 4)
+                if (tList.Count < 4)
                 {
-                    tList.Add("");
+                    for (int i = 0; i <= (4 - tList.Count()); i++)
+                    {
+                        tList.Add("");
+                    }
                 }
+
                 if (ice is Waffle)
                 {
                     Waffle waf = (Waffle)ice;
@@ -556,7 +580,8 @@ void RegisterNewCustomer(Dictionary<int, Customer> customerDict)
             }
             Console.Write("Enter Customer's Date-Of-Birth (dd/MM/yyyy): ");
             string DateOfBirth = Console.ReadLine();
-            DateTime dob = DateTime.ParseExact(DateOfBirth, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            string[] dataFormats = { "dd/MM/yyy", "d/MM/yyy", "dd/M/yyyy","d/M/yyyy" };
+            DateTime dob = DateTime.ParseExact(DateOfBirth, dataFormats, CultureInfo.InvariantCulture);
             Customer newCustomer = new Customer(name, memberId, dob);
 
             PointCard newPointCard = new PointCard(0, 0);
@@ -948,11 +973,7 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
     Customer wantedCustomer = printCustomers(customerDict);
     Console.WriteLine("==========Current and Past Order Details==========");
     Console.WriteLine("Current Orders: ");
-    if (wantedCustomer.CurrentOrder.iceCreamList.Count == 0)
-    {
-        Console.WriteLine("Customer has no current orders");
-    }
-    else
+    if (wantedCustomer.CurrentOrder != null && wantedCustomer.CurrentOrder.iceCreamList.Count != 0)
     {
         string s = "";
         foreach (IceCream ice in wantedCustomer.CurrentOrder.iceCreamList)
@@ -961,6 +982,10 @@ void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
             Console.WriteLine("ID: {0,-5} Time Received: {1,-22} Time Fulfilled: {2,-22}{3,-22}", wantedCustomer.CurrentOrder.Id, wantedCustomer.CurrentOrder.TimeReceived, wantedCustomer.CurrentOrder.TimeFulfilled, s);
             Console.WriteLine();
         }
+    }
+    else
+    {
+        Console.WriteLine("Customer has no current orders");
     }
 
 
@@ -1092,11 +1117,23 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                     PunchCardPromo(customer, iceCreamOrder, totalPrice);
                     PointsRedemption(customer, totalPrice);
                     MakePayment(customer, totalPrice);
-                    using (StreamWriter writer = new StreamWriter("orderPrice.csv"))
+                    string fileName = "orderPrice.csv";
+                    if (!File.Exists(fileName))
                     {
-                        writer.WriteLine("Order ID", "Total Price");
-                        writer.WriteLine("{0}, {1}", customer.CurrentOrder.Id, totalPrice);
+                        using (StreamWriter writer = new StreamWriter(fileName , false))
+                        {
+                            writer.WriteLine("{0},{1}","Order ID","Total Price");
+                            writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice);
+                        }
                     }
+                    else
+                    {
+                        using StreamWriter writer = new StreamWriter(fileName, true);
+                        {
+                            writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice);
+                        }
+                    }
+                    customer.orderHistory.Add(iceCreamOrder);
                     break;
                 }
                 else
@@ -1105,6 +1142,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                 }
             }
         }
+        UpdateOrderCSV(orders, customerDict);
     }
     catch (Exception e)
     {
@@ -1244,8 +1282,6 @@ void MakePayment(Customer customer, double totalPrice)
 
         DateTime timeFulfilled = DateTime.Now;
         customer.CurrentOrder.TimeFulfilled = timeFulfilled;
-
-        customer.orderHistory.Add(customer.CurrentOrder);
     }
 
     Console.WriteLine("Payment successful!");
@@ -1254,44 +1290,89 @@ void MakePayment(Customer customer, double totalPrice)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display monthly charged amounts breakdown & total charged amounts for the year
 //////////////////////////////////////////////////////// Feature b)
-void DisplayMonthlyCharges(List<Order> orders)
+
+void ReadingOrderPrice(Dictionary<int, double> FinalPrice)
 {
-    string[] Months = { "Jan", "Feb", "Mar", "Apr","May", "June", "July","Aug","Sep", "Oct", "Nov", "Dec" };
-    Dictionary<string, double> MonthlyCharges = new Dictionary<string, double>();
-
-
-    Console.Write("Enter the year: ");
-    int year = Convert.ToInt32(Console.ReadLine());
-    foreach (Order o in orders)
+    string line;
+    bool skip_first_line = false;
+    using StreamReader sr = new StreamReader("orderPrice.csv");
     {
-        if (o.TimeFulfilled.Value.Year == year)
+        while ((line = sr.ReadLine()) != null)
         {
-            bool Exists = false;
-            string Month = Months[o.TimeFulfilled.Value.Month - 1];
-            if (!MonthlyCharges.Keys.Contains(Month))
+            if (!skip_first_line)
             {
-                double revenue = o.CalculateTotal();
-                MonthlyCharges.Add(Month, revenue);
+                continue;
             }
-            else
-            {
-                double revenue = o.CalculateTotal();
-                MonthlyCharges[Month] += revenue;
-            }
-        }
-    }
-    foreach (KeyValuePair<string,double> kvp in MonthlyCharges)
-    {
-        foreach (string s in Months)
-        {
-            if (s ==  kvp.Key)
-            {
-                Console.WriteLine("{0} {1}:  ${2}",kvp.Key,year,kvp.Value);
-                break;
-            }
+
+            string[] data = line.Split(',');
+            FinalPrice.Add(Convert.ToInt32(data[0]), Convert.ToDouble(data[1]));
         }
     }
 }
+
+
+void DisplayMonthlyCharges(List<Order> orders)
+{
+    Dictionary<int, double> FinalPrice = new Dictionary<int, double>();
+    string[] Months = { "Jan", "Feb", "Mar", "Apr","May", "June", "July","Aug","Sep", "Oct", "Nov", "Dec" };
+    Dictionary<string, double> MonthlyCharges = new Dictionary<string, double>();
+    foreach (string M in Months)
+    {
+        MonthlyCharges.Add(M, 0);
+    }
+    while (true)
+    {
+        try
+        {
+            Console.Write("Enter the year: ");
+            int year = Convert.ToInt32(Console.ReadLine());
+            if (File.Exists("ordersPrice.csv"))
+            {
+                ReadingOrderPrice(FinalPrice);
+            }
+
+            foreach (Order o in orders)
+            {
+                if (o.TimeFulfilled.Value.Year == year)
+                {
+                    bool Exists = false;
+                    string Month = Months[o.TimeFulfilled.Value.Month - 1];
+                    if (MonthlyCharges.Keys.Contains(Month))
+                    {
+                        if (FinalPrice.Keys.Contains(o.Id))
+                        {
+                            MonthlyCharges[Month] += FinalPrice[o.Id];
+                        }
+                        else
+                        {
+                            double revenue = o.CalculateTotal();
+                            MonthlyCharges[Month] += revenue;
+                        }
+                    }
+
+                }
+            }
+            foreach (KeyValuePair<string, double> kvp in MonthlyCharges)
+            {
+                foreach (string s in Months)
+                {
+                    if (s == kvp.Key)
+                    {
+                        Console.WriteLine("{0} {1}:  ${2}", kvp.Key, year, kvp.Value);
+                        break;
+                    }
+                }
+            }
+            return;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Enter a valid year.");
+        }
+    }
+}
+
+
 
 
 
@@ -1300,11 +1381,6 @@ InitialiseCustomers(customerDict, orders);
 InitaliseOrder(customerDict);
 InitaliseFlavour(FlavoursFile);
 InitaliseToppings(ToppingsFile);
-
-
-
-
-
 
 
 int option = -1;
@@ -1332,7 +1408,6 @@ while (true)
     if (option == 0)
     {
         UpdateCustomerCSV(customerDict);
-        UpdateOrderCSV(orders, customerDict);
         Console.WriteLine("Exited");
         break;
     }
@@ -1465,14 +1540,3 @@ while (true)
        }
 }
 
-
-void Test()
-{
-    DateTime dob = DateTime.Now;
-    Customer custom = new Customer("Ze Yu", 10, dob);
-    Order testOrder = new Order(5, DateTime.Now);
-    testOrder.iceCreamList.Add(new Cup("Cup", 1, new List<Flavour>(), new List<Topping>()));
-    testOrder.TimeFulfilled = DateTime.Now;
-    custom.orderHistory.Add(testOrder);
-    orders.Add(testOrder); customerDict.Add(0, custom);
-}
