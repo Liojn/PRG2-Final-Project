@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace PRG2_Final_Project
 {
-    abstract class IceCream
+    abstract class IceCream //abstract class
     {
+        //attributes and properties
         private string option;
 
         public string Option
@@ -40,7 +41,7 @@ namespace PRG2_Final_Project
             get { return toppings; }
             set { toppings = value; }
         }
-
+        //constructors
         public IceCream() { }
         public IceCream(string o, int s, List<Flavour> f, List<Topping> t)
         {
@@ -49,7 +50,7 @@ namespace PRG2_Final_Project
             Flavours = f;
             Toppings = t;
         }
-
+        //abstract class
         public abstract double CalculatePrice();
         public override string ToString()
         {

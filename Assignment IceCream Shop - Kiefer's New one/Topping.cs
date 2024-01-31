@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PRG2_Final_Project
 {
+    //attributes and properties
     class Topping
     {
         private string type;
@@ -15,7 +16,7 @@ namespace PRG2_Final_Project
             get { return type; }
             set { type = value; }
         }
-
+        //constructors
         public Topping() { }
         public Topping(string t)
         {

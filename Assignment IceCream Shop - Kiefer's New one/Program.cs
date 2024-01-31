@@ -292,20 +292,16 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
 
-void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
+void ListCustomer(Dictionary<int, Customer> customerDict)
 {
-    string FilePath = "customers.csv";
-    string dataline = "";
-    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard"; // Header for the file
-    using StreamWriter writer = new StreamWriter(FilePath, false); // Overwriting whole file 
+    Console.WriteLine("CUSTOMER INFORMATION: ");
+    //Table header
+    Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", "Name", "Membership ID", "Date of Birth", "Membership Status", "Membership Points", "Punch Card", "Tier");
+    //Displaying each customer's information
+    foreach (var kvp in customerDict)
     {
-        writer.WriteLine(Header);
-        foreach (Customer customer in customerDict.Values) // Loop through customer list, writing them in order
-        {
-            dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
-            writer.WriteLine(dataline);
-            dataline = "";
-        }
+        Customer customer = kvp.Value;
+        Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", customer.Name, customer.MemberId, customer.Dob.ToString("dd/MM/yyyy"), customer.Rewards.Tier, customer.Rewards.Points, customer.Rewards.PunchCards);
     }
 }
 
@@ -623,12 +619,14 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
 {
     string name = "";
     Console.WriteLine("CREATING CUSTOMER ORDER: \n");
+    //displaying all the current members
     ListCustomer(customerDict);
     while (true)
     {
         bool NameExists = false;
-        Console.Write("\nEnter customer's name: ");
+        Console.Write("\nEnter customer's name: "); //asking for customer's name to add order into 
         name = Console.ReadLine();
+        //checking if the name exists
         foreach (Customer cus in customerDict.Values)
         {
             if (name.ToLower() == cus.Name.ToLower())
@@ -648,86 +646,82 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
         }
     }
     int id = 0;
-    Order currentOrder = new Order();
-
-    foreach (var kvp in customerDict)
+    Order currentOrder = new Order(); //creating new order object
+    //initializing order id 
+    if (orders.Count > 0)
     {
-        if (orders.Count > 0 && kvp.Value.Name == name)
-        {
-            if (kvp.Value.CurrentOrder != null)
-            {
-                id = kvp.Value.CurrentOrder.Id;
-            }
-            else
-            {
-                id = orders[orders.Count - 1].Id + 1;
-
-            }
-        }
+        id = orders[orders.Count - 1].Id + 1;
     }
     foreach (var kvp in customerDict)
     {
         if (kvp.Value.Name == name)
         {
-            kvp.Value.MakeOrder();
-            kvp.Value.CurrentOrder.Id = id;
-            currentOrder = kvp.Value.CurrentOrder;
-
-            IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-            currentOrder.iceCreamList.Add(newIce);
-
-
-            while (currentOrder.iceCreamList.Count() < 3)
+            if (kvp.Value.CurrentOrder != null) //message shown when order for the customer has already been created
             {
-                while (true)
-                {
-                    Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
-                    string addIceCreamChoice = Console.ReadLine();
-
-                    if (addIceCreamChoice.ToUpper() == "Y")
-                    {
-
-                        newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
-                        currentOrder.iceCreamList.Add(newIce);
-                    }
-                    else if (addIceCreamChoice.ToUpper() == "N")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Enter [Y/N].");
-                    }
-                }
+                Console.WriteLine("Order has already been created.");
                 break;
-            }
-
-            if (kvp.Value.Rewards.Tier == "Gold")
-            {
-                GoldQueue.Enqueue(currentOrder);
             }
             else
             {
-                RegularQueue.Enqueue(currentOrder);
+                kvp.Value.MakeOrder(); //calling the method that make order for the specific customer
+                kvp.Value.CurrentOrder.Id = id; //adding in the customer's order id 
+                currentOrder = kvp.Value.CurrentOrder; //connect customer's current order with the order made now
+
+                IceCream newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder); //calling method to take in ice cream order 
+                currentOrder.iceCreamList.Add(newIce); //adding the ice cream to the order object created
+
+
+                while (currentOrder.iceCreamList.Count() < 3)
+                {
+                    while (true)
+                    {
+                        //asking if customer want more than one ice cream order in the order
+                        Console.Write("Do you want to add another ice cream to the order? [Y/N]: ");
+                        string addIceCreamChoice = Console.ReadLine();
+
+                        if (addIceCreamChoice.ToUpper() == "Y") //repeat if Y
+                        {
+
+                            newIce = IceCreamOptionChoice(FlavoursFile, ToppingsFile, currentOrder);
+                            currentOrder.iceCreamList.Add(newIce);
+                        }
+                        else if (addIceCreamChoice.ToUpper() == "N") //break if N
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Enter [Y/N].");
+                        }
+                    }
+                    break;
+                }
+                // add to the respective queues
+                if (kvp.Value.Rewards.Tier == "Gold")
+                {
+                    GoldQueue.Enqueue(currentOrder);
+                }
+                else
+                {
+                    RegularQueue.Enqueue(currentOrder);
+                }
+                kvp.Value.CurrentOrder = currentOrder;
+                orders.Add(currentOrder);
+                Console.WriteLine("Order has been placed successfully!\n");
+
+                break;
             }
-
-            kvp.Value.CurrentOrder = currentOrder;
-            orders.Add(currentOrder);
-            Console.WriteLine("Order has been placed successfully!\n");
-
-            break;
         }
     }
 }
-
 static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<string> ToppingsFile, Order currentOrder)
 {
     string iceCreamOption = "";
-    List<Flavour> newFlavoursList = new List<Flavour>();
-    List<Topping> newToppingList = new List<Topping>();
+    List<Flavour> newFlavoursList = new List<Flavour>(); //to store flavour
+    List<Topping> newToppingList = new List<Topping>(); //to store toppings
     bool isDipped = false;
     string wFlavour = "";
-
+    //displaying choices of ice cream options
     string[] option = { "Cup", "Cone", "Waffle" };
     Console.WriteLine("Available Ice Cream Options: ");
     foreach (string o in option)
@@ -737,12 +731,14 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
     Console.WriteLine();
     while (true)
     {
+        //asking for ice cream option 
         Console.Write("Enter your ice cream option: ");
         iceCreamOption = Console.ReadLine();
 
 
-        if (iceCreamOption.ToLower() == "waffle")
+        if (iceCreamOption.ToLower() == "waffle") //if option is waffle
         {
+            //displaying waffle flavours 
             iceCreamOption = "Waffle";
             string[] waffleFlavourOptions = { "Original", "Pandan", "Red Velvet", "Charcoal" };
             Console.WriteLine("Possible Options: ");
@@ -769,7 +765,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                         wFlavour = s; break;
                     }
                 }
-                if (!WExists)
+                if (!WExists) //if waffle flavour is not valid
                 {
                     Console.WriteLine("Give a valid Waffle Flavour");
                 }
@@ -780,12 +776,12 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             }
             break;
         }
-        else if (iceCreamOption.ToLower() == "cone")
+        else if (iceCreamOption.ToLower() == "cone") //if option is cone
         {
             iceCreamOption = "Cone";
             while (true)
             {
-                Console.Write("Do you want to upgrade to a chocolate-dipped cone(+$2)? [Y/N]: ");
+                Console.Write("Do you want to upgrade to a chocolate-dipped cone(+$2)? [Y/N]: "); //asking for chocolate dipped cone
                 string chocoDippedChoice = Console.ReadLine();
                 if (chocoDippedChoice.ToUpper() == "Y")
                 {
@@ -802,7 +798,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             }
             break;
         }
-        else if (iceCreamOption.ToLower() == "cup")
+        else if (iceCreamOption.ToLower() == "cup") //if cup
         {
             iceCreamOption = "Cup"; break;
         }
@@ -815,18 +811,18 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
     int noOfScoops = -1;
     while (true)
     {
-        Console.Write("Enter the number of ice cream scoops (Min 1, Max 3): ");
+        Console.Write("Enter the number of ice cream scoops (Min 1, Max 3): "); //asking for numbers of scoops of ice cream
         try
         {
             noOfScoops = Convert.ToInt32(Console.ReadLine());
-            if (noOfScoops <= 0 || noOfScoops > 3)
+            if (noOfScoops <= 0 || noOfScoops > 3) //min 1 scoop and max 3 scoops
             {
                 Console.WriteLine("Enter a valid number of scoops.");
                 continue;
             }
             break;
         }
-        catch (FormatException)
+        catch (FormatException) //if format doesn't match
         {
             Console.WriteLine("Enter a valid number.");
         }
@@ -835,7 +831,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             Console.WriteLine("Error Message: {0}", ex);
         }
     }
-
+    //displaying the available ice cream flavours
     Console.WriteLine("Flavours Available:");
     foreach (KeyValuePair<string, int> flav in FlavoursFile)
     {
@@ -849,7 +845,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
     }
 
     Console.WriteLine();
-    for (int i = 0; i < noOfScoops; i++)
+    for (int i = 0; i < noOfScoops; i++) //asking for the ice cream flavour based on the number of scoops chosen
     {
         bool ValidFlavour = false;
         bool Exists = false;
@@ -867,7 +863,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                     ValidFlavour = true;
                 }
             }
-            if (ValidFlavour == false)
+            if (ValidFlavour == false) //if flavour unavailable
             {
                 Console.WriteLine("Enter a valid flavour.");
             }
@@ -876,15 +872,15 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                 break;
             }
         }
-        foreach (KeyValuePair<string, int> kvp in FlavoursFile)
+        foreach (KeyValuePair<string, int> kvp in FlavoursFile) //checking if the flavour chosen is premium for cost calculation
         {
             if (flavourType.ToLower() == kvp.Key.ToLower() && kvp.Value != 0)
             {
                 isPremium = true;
             }
         }
-        Flavour flavour = new Flavour(flavourType, isPremium, 1);
-        foreach (Flavour flav in newFlavoursList)
+        Flavour flavour = new Flavour(flavourType, isPremium, 1); //creating flavour object
+        foreach (Flavour flav in newFlavoursList) //checking if there are same flavours chosen
         {
             if (flavourType.ToLower() == flav.Type.ToLower())
             {
@@ -903,11 +899,11 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
     int noOfToppings = -1;
     while (true)
     {
-        Console.Write("Enter the number of toppings to add (Min 0, Max 4): ");
+        Console.Write("Enter the number of toppings to add (Min 0, Max 4): "); //asking for numbers of toppings
         try
         {
             noOfToppings = Convert.ToInt32(Console.ReadLine());
-            if (noOfToppings < 0 || noOfToppings > 4)
+            if (noOfToppings < 0 || noOfToppings > 4) //min 0 max 4 toppings 
             {
                 Console.WriteLine("Enter a valid number of toppings.");
                 continue;
@@ -916,7 +912,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             {
                 break;
             }
-            Console.WriteLine("Toppings Available: ");
+            Console.WriteLine("Toppings Available: "); //displaying the toppings options
             foreach (string t in toppingOptions)
             {
                 Console.Write("| {0, -15} |", t);
@@ -924,16 +920,16 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             Console.WriteLine();
             break;
         }
-        catch (FormatException)
+        catch (FormatException) //checking for format match
         {
             Console.WriteLine("Enter a valid number.");
         }
-        catch (Exception ex)
+        catch (Exception ex)//other exception
         {
             Console.WriteLine("Error Message: {0}", ex);
         }
     }
-    for (int i = 0; i < noOfToppings; i++)
+    for (int i = 0; i < noOfToppings; i++) //asking for each type of toppings based on the numbers of topping customer want
     {
         while (true)
         {
@@ -955,7 +951,7 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
             }
             foreach (Topping t in newToppingList)
             {
-                if (toppingType.ToLower() == t.Type.ToLower())
+                if (toppingType.ToLower() == t.Type.ToLower()) //one topping type can only be chosen once
                 {
                     Console.WriteLine("Topping already exists.");
                     exists = true;
@@ -968,14 +964,14 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
                     toppingType = t;
                 }
             }
-            Topping topping = new Topping(toppingType);
+            Topping topping = new Topping(toppingType); //creating new topping object
             if (exists == false)
             {
-                newToppingList.Add(topping); break;
+                newToppingList.Add(topping); break; //adding to list
             }
         }
     }
-
+    //creating new ice cream object based on the ice cream objects chosen
     if (iceCreamOption == "Cone")
     {
         IceCream newIce = new Cone(iceCreamOption, noOfScoops, newFlavoursList, newToppingList, isDipped); return newIce;
@@ -990,10 +986,10 @@ static IceCream IceCreamOptionChoice(Dictionary<string, int> FlavoursFile, List<
         return newIce;
     }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
-void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Display Order details of a customer ( Feature 5 )
+    void OrderDetailsCustomer(Dictionary<int, Customer> customerDict)
 {
     Customer wantedCustomer = printCustomers(customerDict); // Print customers first 
     Console.WriteLine("==========Current and Past Order Details==========");
@@ -1123,57 +1119,66 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
 {
     try
     {
+        //to dequeue order based on the queue a customer is in
         Order iceCreamOrder = DequeueOrder(GoldQueue, RegularQueue);
         if (iceCreamOrder != null)
         {
+            //displaying the ice cream in the order and showing 
             double totalPrice = DisplayOrder(iceCreamOrder);
-            bool birthdayPromoGiven = false;
+            bool birthdayPromoGiven = false; //checking if birthday promotion has already been given
             foreach (Customer customer in customerDict.Values)
             {
-                if (customer.CurrentOrder != null && customer.CurrentOrder.Id == iceCreamOrder.Id)
+                if (customer.CurrentOrder != null && customer.CurrentOrder.Id == iceCreamOrder.Id) //working with customer with the same order id
                 {
+                    // displaying customer information
                     Console.WriteLine("Customer's Name: {0}", customer.Name);
                     Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
                     Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
-                    if (birthdayPromoGiven == false)
+                    //checking whether to apply birthday promo
+                    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day && !birthdayPromoGiven)
                     {
                         totalPrice = BirthdayPromo(customer, iceCreamOrder, totalPrice);
                         birthdayPromoGiven = true;
                     }
+                    //incrementing and applying promotion if punch card is full
                     totalPrice = PunchCardPromo(customer, iceCreamOrder, totalPrice);
-                    if (totalPrice > 0)
+                    if (totalPrice > 0) //if the total price is not 0
                     {
+                        //customer will be able to redeem points 
                         totalPrice = PointsRedemption(customer, totalPrice);
                     }
+                    //making payment and adding time fulfilled
                     MakePayment(customer, totalPrice);
                     string fileName = "orderPrice.csv";
                     if (!File.Exists(fileName))
                     {
-                        using (StreamWriter writer = new StreamWriter(fileName, false))
+                        using (StreamWriter writer = new StreamWriter(fileName, false))//creating new csv file
                         {
                             writer.WriteLine("{0},{1}", "Order ID", "Total Price");
-                            writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice);
+                            writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice); //adding id and total price
                         }
                     }
                     else
                     {
-                        using StreamWriter writer = new StreamWriter(fileName, true);
+                        using StreamWriter writer = new StreamWriter(fileName, true); //if csv file already created
                         {
                             writer.WriteLine("{0},{1}", customer.CurrentOrder.Id, totalPrice);
                         }
                     }
+                    //adding the order to order history
                     customer.orderHistory.Add(iceCreamOrder);
                     break;
                 }
                 else
                 {
-                    break;
+                    continue;
                 }
             }
         }
+        //update order.csv
         UpdateOrderCSV(orders, customerDict);
     }
-    catch (Exception e)
+    catch (Exception e) //capturing any exception
     {
         Console.WriteLine($"An error occurred. {e.Message}");
     }
@@ -1183,11 +1188,11 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
 Order DequeueOrder(Queue<Order> GoldQueue, Queue<Order> RegularQueue)
 {
     Order iceCreamOrder = null;
-    if (GoldQueue.Count != 0)
+    if (GoldQueue.Count != 0) //dequeuing gold queue
     {
         iceCreamOrder = GoldQueue.Dequeue();
     }
-    else if (GoldQueue.Count == 0 && RegularQueue.Count != 0)
+    else if (GoldQueue.Count == 0 && RegularQueue.Count != 0) //dequeuing regular queue
     {
         iceCreamOrder = RegularQueue.Dequeue();
     }
@@ -1202,32 +1207,31 @@ static double DisplayOrder(Order iceCreamOrder)
 {
     double totalPrice = 0;
     Console.WriteLine("Ice Cream(s) in Order: ");
-    foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    foreach (IceCream ice in iceCreamOrder.iceCreamList) //displaying ice cream in the order
     {
         Console.WriteLine(ice);
         totalPrice += ice.CalculatePrice();
     }
-    Console.WriteLine("The total amount is: ${0}", totalPrice);
+    Console.WriteLine("The total amount is: ${0}", totalPrice); //display initial total price
     return totalPrice;
 }
 
 static double BirthdayPromo(Customer customer, Order iceCreamOrder, double totalPrice)
 {
     double highestPrice = 0;
-    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day)
-    {
-        Console.WriteLine("Birthday Promotion Valid.");
 
-        foreach (IceCream ice in iceCreamOrder.iceCreamList)
+    Console.WriteLine("Birthday Promotion Valid.");
+
+    foreach (IceCream ice in iceCreamOrder.iceCreamList) //comparing prices to find the highest priced ice cream
+    {
+        if (ice.CalculatePrice() > highestPrice)
         {
-            if (ice.CalculatePrice() > highestPrice)
-            {
-                highestPrice = ice.CalculatePrice();
-            }
-            totalPrice -= highestPrice;
+            highestPrice = ice.CalculatePrice();
         }
-        Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
     }
+    totalPrice -= highestPrice;//deducting highest priced ice creamm from the total price
+    Console.WriteLine("Total Amount (after birthday promotion): ${0}", totalPrice);
+
     return totalPrice;
 }
 
@@ -1235,20 +1239,20 @@ static double PunchCardPromo(Customer customer, Order iceCreamOrder, double tota
 {
     int memberPunchCard = customer.Rewards.PunchCards;
     Console.WriteLine("Current Punch Card value: {0}", memberPunchCard);
-    if (memberPunchCard < 10)
+    if (memberPunchCard < 10) //incrementing the punchcard 
     {
         memberPunchCard++;
         Console.WriteLine("New Punch Card value: {0}", memberPunchCard);
     }
     else if (memberPunchCard == 10)
     {
-        memberPunchCard = 0;
-        double firstIceCream = iceCreamOrder.iceCreamList[0].CalculatePrice();
-        totalPrice -= firstIceCream;
+        memberPunchCard = 0;//reseting punch card
+        double firstIceCream = iceCreamOrder.iceCreamList[0].CalculatePrice(); //the first ice cream given free
+        totalPrice -= firstIceCream; //deducting the first ice cream price
         Console.WriteLine("Punch Card is completed and has been reset.");
         Console.WriteLine("Total Amount (after completion of Punch Card): ${0}", totalPrice);
     }
-    customer.Rewards.PunchCards = memberPunchCard;
+    customer.Rewards.PunchCards = memberPunchCard; //updating the punch card
     return totalPrice;
 }
 
@@ -1256,7 +1260,7 @@ static double PointsRedemption(Customer customer, double totalPrice)
 {
     string membershipStatus = customer.Rewards.Tier;
     int membershipPoints = customer.Rewards.Points;
-    if (membershipStatus == "Silver" || membershipStatus == "Gold")
+    if (membershipStatus == "Silver" || membershipStatus == "Gold") //validation for redeemption of points for silver and above
     {
         Console.WriteLine("Redemption of points is valid.");
         Console.Write("Enter the numbers of points to redeem: ");
@@ -1264,21 +1268,22 @@ static double PointsRedemption(Customer customer, double totalPrice)
 
         if (redeemPoints > 0)
         {
-            if (redeemPoints > membershipPoints)
+            if (redeemPoints > membershipPoints) //if points not sufficient
             {
                 Console.WriteLine("Points insufficient.");
             }
             else
             {
-                membershipPoints -= redeemPoints;
+                membershipPoints -= redeemPoints; //deducting the points after redemption
                 Console.WriteLine("Membership Points (after redemption): {0}", membershipPoints);
-                totalPrice -= redeemPoints * 0.02;
+                totalPrice -= redeemPoints * 0.02; //applying discount after redemption of points
                 Console.WriteLine("Total Amount (after Points redemption): ${0}", totalPrice);
             }
-            customer.Rewards.Points = membershipPoints;
+            customer.Rewards.Points = membershipPoints; //updating membership Points
         }
 
         Console.WriteLine("Membership status (before): {0}", membershipStatus);
+        //updating the membership status
         if (membershipStatus != "Gold")
         {
             if (membershipPoints >= 100)
@@ -1306,15 +1311,22 @@ void MakePayment(Customer customer, double totalPrice)
 
     if (payKey != null)
     {
+        //adding points to customer 
         int pointsToEarn = Convert.ToInt32(Math.Floor(totalPrice * 0.72));
         customer.Rewards.AddPoints(pointsToEarn);
 
+        //setting the timeFulfilled of order for the current order
         DateTime timeFulfilled = DateTime.Now;
         customer.CurrentOrder.TimeFulfilled = timeFulfilled;
     }
 
     Console.WriteLine("Payment successful!");
 }
+
+
+
+
+//////////////
 
 
 
