@@ -637,9 +637,20 @@ void CreateCustomerOrder(Dictionary<int, Customer> customerDict, List<Order> ord
     int id = 0;
     Order currentOrder = new Order();
 
-    if (orders.Count > 0)
+    foreach(var kvp in customerDict)
     {
-        id = orders[orders.Count - 1].Id + 1;
+        if(orders.Count > 0 && kvp.Value.Name == name)
+        {
+            if(kvp.Value.CurrentOrder != null)
+            {
+                id = kvp.Value.CurrentOrder.Id;
+            }
+            else
+            {
+                id = orders[orders.Count - 1].Id + 1;
+                
+            }
+        }
     }
     foreach (var kvp in customerDict)
     {
@@ -1110,7 +1121,8 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                     Console.WriteLine("Customer's Name: {0}", customer.Name);
                     Console.WriteLine("Membership Status: {0}", customer.Rewards.Tier);
                     Console.WriteLine("Membership Points: {0}", customer.Rewards.Points);
-                    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day && birthdayPromoGiven == false)
+                    
+                    if (customer.Dob.Month == DateTime.Now.Month && customer.Dob.Day == DateTime.Now.Day && !birthdayPromoGiven)
                     {
                         BirthdayPromo(customer, iceCreamOrder, totalPrice);
                         birthdayPromoGiven = true;
@@ -1139,7 +1151,7 @@ void Checkout(Dictionary<int, Customer> customerDict, Queue<Order> GoldQueue, Qu
                 }
                 else
                 {
-                    break;
+                    continue;
                 }
             }
         }
