@@ -292,16 +292,20 @@ void InitaliseOrder(Dictionary<int, Customer> customerDict)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// Appending to customer.csv File
 
-void ListCustomer(Dictionary<int, Customer> customerDict)
+void UpdateCustomerCSV(Dictionary<int, Customer> customerDict)
 {
-    Console.WriteLine("CUSTOMER INFORMATION: ");
-    //Table header
-    Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", "Name", "Membership ID", "Date of Birth", "Membership Status", "Membership Points", "Punch Card", "Tier");
-    //Displaying each customer's information
-    foreach (var kvp in customerDict)
+    string FilePath = "customers.csv";
+    string dataline = "";
+    string Header = "Name,MemberId,DOB,MembershipStatus,MembershipPoints,PunchCard"; // Header for the file
+    using StreamWriter writer = new StreamWriter(FilePath, false); // Overwriting whole file 
     {
-        Customer customer = kvp.Value;
-        Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", customer.Name, customer.MemberId, customer.Dob.ToString("dd/MM/yyyy"), customer.Rewards.Tier, customer.Rewards.Points, customer.Rewards.PunchCards);
+        writer.WriteLine(Header);
+        foreach (Customer customer in customerDict.Values) // Loop through customer list, writing them in order
+        {
+            dataline += customer.Name + "," + customer.MemberId + "," + customer.Dob.ToString("dd/MM/yyyy") + "," + customer.Rewards.Tier + "," + customer.Rewards.Points + "," + customer.Rewards.PunchCards;
+            writer.WriteLine(dataline);
+            dataline = "";
+        }
     }
 }
 
@@ -428,7 +432,9 @@ void Menu() // menu
 void ListCustomer(Dictionary<int, Customer> customerDict)
 {
     Console.WriteLine("CUSTOMER INFORMATION: ");
+    //Table header
     Console.WriteLine("{0, -10} {1, 15} {2, 15} {3, 20} {4, 20} {5, 15}", "Name", "Membership ID", "Date of Birth", "Membership Status", "Membership Points", "Punch Card", "Tier");
+    //Displaying each customer's information
     foreach (var kvp in customerDict)
     {
         Customer customer = kvp.Value;
